@@ -1,0 +1,7 @@
+{
+  "name": "nbrader.com-colour-discern",
+  "packageManager": "yarn@3.6.3",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
