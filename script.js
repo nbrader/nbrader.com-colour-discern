@@ -42,7 +42,7 @@ document.getElementById("chooseB").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    let csv = "Good Hue, Good Saturation, Good Value, Bad Hue, Bad Saturation, Bad Value, Choice, Is Correct\n";
+    let csv = "A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n";
     results.forEach(res => {
         csv += `${res.goodHue}, ${res.goodSaturation}, ${res.goodValue}, ${res.badHue}, ${res.badSaturation}, ${res.badValue}, ${res.choice}, ${res.isCorrect}\n`;
     });
