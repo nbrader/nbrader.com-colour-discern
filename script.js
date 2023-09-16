@@ -6,7 +6,7 @@ document.getElementById("continue").addEventListener("click", function() {
     document.body.style.backgroundColor = "black";
     document.getElementById("content").style.display = "none";
     document.getElementById("waitingMessage").style.display = "block"; // Show waiting message
-    let counter = 7;
+    let counter = 8;
     const interval = setInterval(() => {
         document.getElementById("countdown").textContent = counter;
         counter--;
@@ -22,6 +22,13 @@ document.getElementById("continue").addEventListener("click", function() {
         document.getElementById("testColor").querySelector(".color").style.backgroundColor = `hsl(${chosenColor[0]}, ${chosenColor[1]}%, ${chosenColor[2]}%)`;
         document.getElementById("choiceScreen").style.display = "block";
         document.body.style.backgroundColor = "#111"; // change background to dark grey
+
+        // Store the chosenColor directly, not just its visual representation
+        if (random > 0.5) {
+            document.getElementById("testColor").chosenColor = goodColor;
+        } else {
+            document.getElementById("testColor").chosenColor = badColor;
+        }
     }, 8000);
 });
 
@@ -61,9 +68,9 @@ function setColors() {
 }
 
 function checkChoice(choice) {
-    const testColorElement = document.getElementById("testColor").querySelector(".color").style.backgroundColor;
-    const isCorrect = (choice === "good" && testColorElement === `hsl(${goodColor[0]}, ${goodColor[1]}%, ${goodColor[2]}%)`) || 
-                      (choice === "bad" && testColorElement === `hsl(${badColor[0]}, ${badColor[1]}%, ${badColor[2]}%)`);
+    const testColor = document.getElementById("testColor").chosenColor;
+    const isCorrect = (choice === "good" && arraysEqual(goodColor, testColor)) || 
+                      (choice === "bad" && arraysEqual(badColor, testColor));
 
     results.push({
         goodHue: goodColor[0],
