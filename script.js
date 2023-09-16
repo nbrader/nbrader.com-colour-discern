@@ -25,9 +25,9 @@ document.getElementById("chooseBad").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    let csv = "Hue, Saturation, Value, Choice\n";
+    let csv = "Good Hue, Good Saturation, Good Value, Bad Hue, Bad Saturation, Bad Value, Choice\n";
     results.forEach(res => {
-        csv += `${res.hue}, ${res.saturation}, ${res.value}, ${res.choice}\n`;
+        csv += `${res.goodHue}, ${res.goodSaturation}, ${res.goodValue}, ${res.badHue}, ${res.badSaturation}, ${res.badValue}, ${res.choice}\n`;
     });
     const blob = new Blob([csv], {type: "text/csv"});
     const url = window.URL.createObjectURL(blob);
@@ -55,11 +55,15 @@ function checkChoice(choice) {
     const isCorrect = (choice === "good" && arraysEqual(goodColor, testColor)) || (choice === "bad" && arraysEqual(badColor, testColor));
     
     results.push({
-        hue: isCorrect ? goodColor[0] : badColor[0],
-        saturation: isCorrect ? goodColor[1] : badColor[1],
-        value: isCorrect ? goodColor[2] : badColor[2],
+        goodHue: goodColor[0],
+        goodSaturation: goodColor[1],
+        goodValue: goodColor[2],
+        badHue: badColor[0],
+        badSaturation: badColor[1],
+        badValue: badColor[2],
         choice: choice
     });
+
 
     // Reset to main screen
     document.getElementById("choiceScreen").style.display = "none";
