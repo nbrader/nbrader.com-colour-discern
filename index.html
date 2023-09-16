@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Test</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Color Choice Game</title>
 </head>
-
-<body style="background-color: rgb(17, 17, 17);">
+<body>
     <div id="content">
         <div id="colors">
             <div class="color-box" id="good">
                 <p>Good</p>
-                <div class="color" style="background-color: rgb(225, 245, 249);"></div>
+                <div class="color"></div>
             </div>
             <div class="color-box" id="bad">
                 <p>Bad</p>
-                <div class="color" style="background-color: rgb(236, 217, 226);"></div>
+                <div class="color"></div>
             </div>
         </div>
         <button id="continue">Continue</button>
@@ -26,14 +24,16 @@
 
     <div id="choiceScreen" style="display: none;">
         <div class="color-box" id="testColor">
-            <div class="color" style="background-color: rgb(225, 245, 249);"></div>
+            <div class="color"></div>
         </div>
         <button id="chooseGood">Good</button>
         <button id="chooseBad">Bad</button>
     </div>
 
+    <div id="waitingMessage" style="display: none; color: white; font-size: 24px;">
+        Get ready to choose in <span id="countdown">8</span> seconds...
+    </div>
+
     <script src="script.js"></script>
 </body>
-
-
 </html>

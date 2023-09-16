@@ -5,12 +5,21 @@ document.getElementById("continue").addEventListener("click", function() {
     // Fade to black
     document.body.style.backgroundColor = "black";
     document.getElementById("content").style.display = "none";
+    document.getElementById("waitingMessage").style.display = "block"; // Show waiting message
+    let counter = 7;
+    const interval = setInterval(() => {
+        document.getElementById("countdown").textContent = counter;
+        counter--;
+        if (counter < 0) {
+            clearInterval(interval);
+        }
+    }, 1000);
 
     setTimeout(function() {
+        document.getElementById("waitingMessage").style.display = "none"; // Hide waiting message
         const random = Math.random();
         const chosenColor = random > 0.5 ? goodColor : badColor;
         document.getElementById("testColor").querySelector(".color").style.backgroundColor = `hsl(${chosenColor[0]}, ${chosenColor[1]}%, ${chosenColor[2]}%)`;
-
         document.getElementById("choiceScreen").style.display = "block";
         document.body.style.backgroundColor = "#111"; // change background to dark grey
     }, 8000);
@@ -25,9 +34,9 @@ document.getElementById("chooseBad").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    let csv = "Good Hue, Good Saturation, Good Value, Bad Hue, Bad Saturation, Bad Value, Choice\n";
+    let csv = "Good Hue, Good Saturation, Good Value, Bad Hue, Bad Saturation, Bad Value, Choice, Is Correct\n";
     results.forEach(res => {
-        csv += `${res.goodHue}, ${res.goodSaturation}, ${res.goodValue}, ${res.badHue}, ${res.badSaturation}, ${res.badValue}, ${res.choice}\n`;
+        csv += `${res.goodHue}, ${res.goodSaturation}, ${res.goodValue}, ${res.badHue}, ${res.badSaturation}, ${res.badValue}, ${res.choice}, ${res.isCorrect}\n`;
     });
     const blob = new Blob([csv], {type: "text/csv"});
     const url = window.URL.createObjectURL(blob);
@@ -52,8 +61,10 @@ function setColors() {
 }
 
 function checkChoice(choice) {
-    const isCorrect = (choice === "good" && arraysEqual(goodColor, testColor)) || (choice === "bad" && arraysEqual(badColor, testColor));
-    
+    const testColorElement = document.getElementById("testColor").querySelector(".color").style.backgroundColor;
+    const isCorrect = (choice === "good" && testColorElement === `hsl(${goodColor[0]}, ${goodColor[1]}%, ${goodColor[2]}%)`) || 
+                      (choice === "bad" && testColorElement === `hsl(${badColor[0]}, ${badColor[1]}%, ${badColor[2]}%)`);
+
     results.push({
         goodHue: goodColor[0],
         goodSaturation: goodColor[1],
@@ -61,9 +72,9 @@ function checkChoice(choice) {
         badHue: badColor[0],
         badSaturation: badColor[1],
         badValue: badColor[2],
-        choice: choice
+        choice: choice,
+        isCorrect: isCorrect
     });
-
 
     // Reset to main screen
     document.getElementById("choiceScreen").style.display = "none";
