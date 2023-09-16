@@ -7,9 +7,10 @@ document.getElementById("continue").addEventListener("click", function() {
     document.getElementById("content").style.display = "none";
     document.getElementById("waitingMessage").style.display = "block"; // Show waiting message
     let counter = 8;
+    document.getElementById("countdown").textContent = counter;
     const interval = setInterval(() => {
-        document.getElementById("countdown").textContent = counter;
         counter--;
+        document.getElementById("countdown").textContent = counter;
         if (counter < 0) {
             clearInterval(interval);
         }
