@@ -1,5 +1,27 @@
 let colorA, colorB;
 let results = [];
+let currentName, currentDeviation;
+
+document.getElementById("start").addEventListener("click", function() {
+    currentName = document.getElementById("name").value;
+    if (!currentName) {
+        alert("Please enter your name.");
+        return;
+    }
+
+    currentDeviation = document.getElementById("deviation").value;
+
+    // Disable name and deviation inputs
+    document.getElementById("name").disabled = true;
+    document.getElementById("deviation").disabled = true;
+
+    // Hide the instructions
+    document.getElementById("instructions").style.display = "none";
+    
+    // Show the content
+    document.getElementById("content").style.display = "block";
+    setColors();
+});
 
 document.getElementById("continue").addEventListener("click", function() {
     // Fade to black
@@ -42,9 +64,10 @@ document.getElementById("chooseB").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    let csv = "A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n";
+    let csv = `Name, Max Deviation, A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n`;
+
     results.forEach(res => {
-        csv += `${res.goodHue}, ${res.goodSaturation}, ${res.goodValue}, ${res.badHue}, ${res.badSaturation}, ${res.badValue}, ${res.choice}, ${res.isCorrect}\n`;
+        csv += `${res.name}, ${res.deviation}, ${res.aHue}, ${res.aSaturation}, ${res.aValue}, ${res.bHue}, ${res.bSaturation}, ${res.bValue}, ${res.choice}, ${res.isCorrect}\n`;
     });
     const blob = new Blob([csv], {type: "text/csv"});
     const url = window.URL.createObjectURL(blob);
@@ -63,7 +86,30 @@ function randomHsv() {
 
 function setColors() {
     colorA = randomHsv();
-    colorB = randomHsv();
+
+    // Get the deviation from the input
+    const deviationPercent = document.getElementById("deviation").value;
+
+    // Calculate deviation for Hue
+    let hueDeviation;
+    do {
+        hueDeviation = colorA[0] + ((Math.random() * 2 - 1) * deviationPercent/100 * 360);
+    } while (hueDeviation < 0 || hueDeviation > 360);
+
+    // Calculate deviation for Saturation
+    let saturationDeviation;
+    do {
+        saturationDeviation = colorA[1] + ((Math.random() * 2 - 1) * deviationPercent/100 * 100);
+    } while (saturationDeviation < 0 || saturationDeviation > 100);
+
+    // Calculate deviation for Value
+    let valueDeviation;
+    do {
+        valueDeviation = colorA[2] + ((Math.random() * 2 - 1) * deviationPercent/100 * 100);
+    } while (valueDeviation < 0 || valueDeviation > 100);
+
+    colorB = [Math.floor(hueDeviation), Math.floor(saturationDeviation), Math.floor(valueDeviation)];
+
     document.getElementById("a").querySelector(".color").style.backgroundColor = `hsl(${colorA[0]}, ${colorA[1]}%, ${colorA[2]}%)`;
     document.getElementById("b").querySelector(".color").style.backgroundColor = `hsl(${colorB[0]}, ${colorB[1]}%, ${colorB[2]}%)`;
 }
@@ -74,19 +120,21 @@ function checkChoice(choice) {
                       (choice === "b" && arraysEqual(colorB, testColor));
 
     results.push({
-        goodHue: colorA[0],
-        goodSaturation: colorA[1],
-        goodValue: colorA[2],
-        badHue: colorB[0],
-        badSaturation: colorB[1],
-        badValue: colorB[2],
+        aHue: colorA[0],
+        aSaturation: colorA[1],
+        aValue: colorA[2],
+        bHue: colorB[0],
+        bSaturation: colorB[1],
+        bValue: colorB[2],
         choice: choice,
-        isCorrect: isCorrect
+        isCorrect: isCorrect,
+        name: currentName,
+        deviation: currentDeviation
     });
 
     // Reset to main screen
     document.getElementById("choiceScreen").style.display = "none";
-    document.getElementById("content").style.display = "block";  // make the main content visible again
+    document.getElementById("content").style.display = "block"; 
     setColors();
 }
 

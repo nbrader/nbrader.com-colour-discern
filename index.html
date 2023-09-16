@@ -7,7 +7,20 @@
     <title>Color Choice Game</title>
 </head>
 <body>
-    <div id="content">
+    <div id="instructions">
+        <h2>Welcome to the Colour Discerning Test</h2>
+        <p>
+            In this exercise, you will be shown two colors labeled as "A" and "B". After pressing "Continue", one of the colors will be presented to you. Your task is to identify which label (either "A" or "B") corresponds to the color shown.
+        </p>
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" placeholder="Enter your name">
+
+        <label for="deviation" class="white-text">Max Deviation (%):</label>
+        <input type="number" id="deviation" value="50" min="0" max="100">
+        
+        <button id="start">Start</button>
+    </div>
+    <div id="content" style="display: none;">
         <div id="colors">
             <div class="color-box" id="a">
                 <p>A</p>
