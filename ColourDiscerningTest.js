@@ -64,17 +64,32 @@ document.getElementById("chooseB").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    let csv = `Name, Max Deviation, A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n`;
+    const name = document.getElementById("name").value;
+    const deviation = document.getElementById("deviation").value;
 
+    // Date formatting for filename
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');  // Months are 0-11 in JS
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+    const second = String(now.getSeconds()).padStart(2, '0');
+    
+    const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
+    const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
+
+    let csv = `Name, Max Deviation, A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n`;
     results.forEach(res => {
-        csv += `${res.name}, ${res.deviation}, ${res.aHue}, ${res.aSaturation}, ${res.aValue}, ${res.bHue}, ${res.bSaturation}, ${res.bValue}, ${res.choice}, ${res.isCorrect}\n`;
+        csv += `${name}, ${deviation}, ${res.aHue}, ${res.aSaturation}, ${res.aValue}, ${res.bHue}, ${res.bSaturation}, ${res.bValue}, ${res.choice}, ${res.isCorrect}\n`;
     });
+    
     const blob = new Blob([csv], {type: "text/csv"});
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.setAttribute("hidden", "");
     a.setAttribute("href", url);
-    a.setAttribute("download", "results.csv");
+    a.setAttribute("download", filename);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
