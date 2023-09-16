@@ -1,4 +1,4 @@
-let goodColor, badColor;
+let colorA, colorB;
 let results = [];
 
 document.getElementById("continue").addEventListener("click", function() {
@@ -18,26 +18,26 @@ document.getElementById("continue").addEventListener("click", function() {
     setTimeout(function() {
         document.getElementById("waitingMessage").style.display = "none"; // Hide waiting message
         const random = Math.random();
-        const chosenColor = random > 0.5 ? goodColor : badColor;
+        const chosenColor = random > 0.5 ? colorA : colorB;
         document.getElementById("testColor").querySelector(".color").style.backgroundColor = `hsl(${chosenColor[0]}, ${chosenColor[1]}%, ${chosenColor[2]}%)`;
         document.getElementById("choiceScreen").style.display = "block";
         document.body.style.backgroundColor = "#111"; // change background to dark grey
 
         // Store the chosenColor directly, not just its visual representation
         if (random > 0.5) {
-            document.getElementById("testColor").chosenColor = goodColor;
+            document.getElementById("testColor").chosenColor = colorA;
         } else {
-            document.getElementById("testColor").chosenColor = badColor;
+            document.getElementById("testColor").chosenColor = colorB;
         }
     }, 8000);
 });
 
-document.getElementById("chooseGood").addEventListener("click", function() {
-    checkChoice("good");
+document.getElementById("chooseA").addEventListener("click", function() {
+    checkChoice("a");
 });
 
-document.getElementById("chooseBad").addEventListener("click", function() {
-    checkChoice("bad");
+document.getElementById("chooseB").addEventListener("click", function() {
+    checkChoice("b");
 });
 
 document.getElementById("download").addEventListener("click", function() {
@@ -61,24 +61,24 @@ function randomHsv() {
 }
 
 function setColors() {
-    goodColor = randomHsv();
-    badColor = randomHsv();
-    document.getElementById("good").querySelector(".color").style.backgroundColor = `hsl(${goodColor[0]}, ${goodColor[1]}%, ${goodColor[2]}%)`;
-    document.getElementById("bad").querySelector(".color").style.backgroundColor = `hsl(${badColor[0]}, ${badColor[1]}%, ${badColor[2]}%)`;
+    colorA = randomHsv();
+    colorB = randomHsv();
+    document.getElementById("a").querySelector(".color").style.backgroundColor = `hsl(${colorA[0]}, ${colorA[1]}%, ${colorA[2]}%)`;
+    document.getElementById("b").querySelector(".color").style.backgroundColor = `hsl(${colorB[0]}, ${colorB[1]}%, ${colorB[2]}%)`;
 }
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
-    const isCorrect = (choice === "good" && arraysEqual(goodColor, testColor)) || 
-                      (choice === "bad" && arraysEqual(badColor, testColor));
+    const isCorrect = (choice === "a" && arraysEqual(colorA, testColor)) || 
+                      (choice === "b" && arraysEqual(colorB, testColor));
 
     results.push({
-        goodHue: goodColor[0],
-        goodSaturation: goodColor[1],
-        goodValue: goodColor[2],
-        badHue: badColor[0],
-        badSaturation: badColor[1],
-        badValue: badColor[2],
+        goodHue: colorA[0],
+        goodSaturation: colorA[1],
+        goodValue: colorA[2],
+        badHue: colorB[0],
+        badSaturation: colorB[1],
+        badValue: colorB[2],
         choice: choice,
         isCorrect: isCorrect
     });
