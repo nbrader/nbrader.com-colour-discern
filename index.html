@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body style="background-color: rgb(17, 17, 17);">
+    <div id="content">
+        <div id="colors">
+            <div class="color-box" id="good">
+                <p>Good</p>
+                <div class="color" style="background-color: rgb(225, 245, 249);"></div>
+            </div>
+            <div class="color-box" id="bad">
+                <p>Bad</p>
+                <div class="color" style="background-color: rgb(236, 217, 226);"></div>
+            </div>
+        </div>
+        <button id="continue">Continue</button>
+        <button id="download">Download Results</button>
+    </div>
+
+    <div id="choiceScreen" style="display: none;">
+        <div class="color-box" id="testColor">
+            <div class="color" style="background-color: rgb(225, 245, 249);"></div>
+        </div>
+        <button id="chooseGood">Good</button>
+        <button id="chooseBad">Bad</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+
+</html>
