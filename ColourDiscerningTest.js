@@ -29,11 +29,16 @@ function startTest() {
         alert("Please enter your name.");
         return;
     }
-    deviation = document.getElementById("deviation").value;
+    
+    const deviationPercent = document.getElementById("deviationPercent").value;
+    deviation = (deviationPercent / 100) * 255;
+
+    // Disable the deviation percent input
+    document.getElementById("deviationPercent").disabled = true;
 
     // Disable name and deviation inputs
     document.getElementById("name").disabled = true;
-    document.getElementById("deviation").disabled = true;
+    document.getElementById("deviationPercent").disabled = true;
 
     // Hide the instructions
     document.getElementById("instructions").style.display = "none";
@@ -287,9 +292,9 @@ document.getElementById("download").addEventListener("click", function() {
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
     const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
 
-    let csv = `Name,Max Deviation,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
+    let csv = `Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
-        csv += `${res.name},${res.deviation},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
+        csv += `${res.name},${res.deviationPercent},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
     });
     
     const blob = new Blob([csv], {type: "text/csv"});
@@ -313,22 +318,21 @@ function randomRgb() {
 }
 
 function setColors() {
-    colorA = randomRgb();
-
-    // Use the RGB color space for the deviation calculations
-    colorB = colorA.map(val => {
-        let deviationValue;
-        do {
-            deviationValue = val + (Math.random() * 2 - 1) * deviation;
-        } while (deviationValue < 0 || deviationValue > 255);
-        return Math.floor(deviationValue);
-    });
+    colorA = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+    colorB = generateColorWithDeviation(colorA, deviation);
 
     document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
     document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
 }
 
-
+function generateColorWithDeviation(baseColor, actualDeviation) {
+    return baseColor.map(channel => {
+        let deviation = Math.floor(Math.random() * (actualDeviation + 1));
+        let adjustedChannel = (Math.random() > 0.5) ? channel + deviation : channel - deviation;
+        adjustedChannel = Math.max(0, Math.min(adjustedChannel, 255));
+        return adjustedChannel;
+    });
+}
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
@@ -345,7 +349,7 @@ function checkChoice(choice) {
         choice: choice,
         isCorrect: isCorrect,
         name: name, 
-        deviation: deviation
+        deviationPercent: deviationPercent // save the deviation percent
     });
     
     extractMemorizedColors();
