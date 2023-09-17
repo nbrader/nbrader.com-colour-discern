@@ -1,8 +1,30 @@
 let colorA, colorB;
 let results = [];
+
 let currentName, currentDeviation;
+let initialName, initialDeviation; // Store initial values
 
 document.getElementById("start").addEventListener("click", function() {
+    const fileInput = document.getElementById("csvUpload");
+    const file = fileInput.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const csvData = event.target.result;
+            parseCSV(csvData);
+            // After parsing, start the test
+            startTest();
+        };
+
+        reader.readAsText(file);
+    } else {
+        startTest();
+    }
+});
+
+function startTest() {
     currentName = document.getElementById("name").value;
     if (!currentName) {
         alert("Please enter your name.");
@@ -10,6 +32,14 @@ document.getElementById("start").addEventListener("click", function() {
     }
 
     currentDeviation = document.getElementById("deviation").value;
+
+    // Store these as initial values if they're not set yet
+    if (!initialName) {
+        initialName = currentName;
+    }
+    if (!initialDeviation) {
+        initialDeviation = currentDeviation;
+    }
 
     // Disable name and deviation inputs
     document.getElementById("name").disabled = true;
@@ -21,7 +51,7 @@ document.getElementById("start").addEventListener("click", function() {
     // Show the content
     document.getElementById("content").style.display = "block";
     setColors();
-});
+}
 
 document.getElementById("continue").addEventListener("click", function() {
     // Fade to black
@@ -83,6 +113,8 @@ function initThreeJS() {
     camera.position.set(127.5, 127.5, 627.5); // Z is adjusted to pull the camera back
     camera.lookAt(127.5, 127.5, 127.5);
 }
+
+initThreeJS();
 
 // Helper function: Convert HSV to RGB
 function hsvToRgb(h, s, v) {
@@ -150,7 +182,6 @@ function hsvToRgb(h, s, v) {
 
 function visualizeResults() {
     const incorrectResults = results.filter(r => !r.isCorrect);
-    console.log(incorrectResults);
     // Clear previous lines in the scene
     while(scene.children.length > 0){ 
         scene.remove(scene.children[0]); 
@@ -159,7 +190,6 @@ function visualizeResults() {
     // Add lines for every incorrect result
     incorrectResults.forEach(res => {
         const geometry = new THREE.Geometry();
-        console.log(res.aRed, res.aGreen, res.aBlue, res.bRed, res.bGreen, res.bBlue);
         geometry.vertices.push(new THREE.Vector3(res.aRed, res.aGreen, res.aBlue));
         geometry.vertices.push(new THREE.Vector3(res.bRed, res.bGreen, res.bBlue));
         const material = new THREE.LineBasicMaterial({color: 0xff0000});
@@ -203,8 +233,8 @@ document.getElementById("showResults").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    const name = document.getElementById("name").value;
-    const deviation = document.getElementById("deviation").value;
+    const name = initialName;  // Use the initial name
+    const deviation = initialDeviation; // Use the initial deviation
 
     // Date formatting for filename
     const now = new Date();
@@ -216,11 +246,11 @@ document.getElementById("download").addEventListener("click", function() {
     const second = String(now.getSeconds()).padStart(2, '0');
     
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
-    const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
+    const filename = `ColorTest_${currentName}_Deviation${currentDeviation}_${formattedDate}.csv`;
 
     let csv = `Name,Max Deviation,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
-        csv += `${name},${deviation},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
+        csv += `${res.name},${res.deviation},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
     });
     
     const blob = new Blob([csv], {type: "text/csv"});
@@ -293,6 +323,37 @@ function arraysEqual(a, b) {
     return true;
 }
 
+function parseCSV(csvData) {
+    const rows = csvData.split("\n");
+    results = []; // Clear existing results
+
+    if (rows.length > 1) {
+        const cells = rows[1].split(",");
+        // Use the first row values to set the initial name and deviation
+        initialName = cells[0];
+        initialDeviation = cells[1];
+    }
+
+    // Start from 1 to skip the header row
+    for(let i = 1; i < rows.length; i++) {
+        const cells = rows[i].split(",");
+        if(cells.length > 1) { // Check to prevent processing empty lines
+            results.push({
+                aRed: parseInt(cells[2]),
+                aGreen: parseInt(cells[3]),
+                aBlue: parseInt(cells[4]),
+                bRed: parseInt(cells[5]),
+                bGreen: parseInt(cells[6]),
+                bBlue: parseInt(cells[7]),
+                choice: cells[8],
+                isCorrect: cells[9] === "true",
+                name: cells[0],
+                deviation: cells[1]
+            });
+        }
+    }
+    visualizeResults(); // Visualize the loaded data
+}
+
 // Initialize
-initThreeJS();
 setColors();
