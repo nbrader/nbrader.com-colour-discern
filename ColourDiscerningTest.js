@@ -63,6 +63,142 @@ document.getElementById("chooseB").addEventListener("click", function() {
     checkChoice("b");
 });
 
+// Three.js setup
+let scene, camera, renderer;
+
+function initThreeJS() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("resultsCanvas").appendChild(renderer.domElement);
+
+    // Add controls to allow the cube to be rotated
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+}
+
+// Helper function: Convert HSV to RGB
+function hsvToRgb(h, s, v) {
+    let r, g, b;
+    let i;
+    let f, p, q, t;
+
+    h = Math.max(0, Math.min(360, h));
+    s = Math.max(0, Math.min(100, s));
+    v = Math.max(0, Math.min(100, v));
+
+    s /= 100;
+    v /= 100;
+
+    if(s == 0) {
+        r = g = b = v;
+        return [
+            Math.round(r * 255),
+            Math.round(g * 255),
+            Math.round(b * 255)
+        ];
+    }
+
+    h /= 60; // sector 0 to 5
+    i = Math.floor(h);
+    f = h - i; // factorial part of h
+    p = v * (1 - s);
+    q = v * (1 - s * f);
+    t = v * (1 - s * (1 - f));
+
+    switch(i) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        default: // case 5:
+            r = v;
+            g = p;
+            b = q;
+    }
+
+    return new THREE.Color(r, g, b);
+}
+
+function visualizeResults() {
+    const incorrectResults = results.filter(r => !r.isCorrect);
+    
+    // Clear previous lines in the scene
+    while(scene.children.length > 0){ 
+        scene.remove(scene.children[0]); 
+    }
+
+    // Add lines for every incorrect result
+    incorrectResults.forEach(res => {
+        const geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vector3(res.aHue, res.aSaturation, res.aValue));
+        geometry.vertices.push(new THREE.Vector3(res.bHue, res.bSaturation, res.bValue));
+        const material = new THREE.LineBasicMaterial({color: 0xff0000});
+        const line = new THREE.Line(geometry, material);
+        scene.add(line);
+    });
+
+    // Create a 3D grid of dots with HSV colors
+    const step = 10;
+    for (let h = 0; h <= 360; h += step) {
+        for (let s = 0; s <= 100; s += step) {
+            for (let v = 0; v <= 100; v += step) {
+                const dotGeometry = new THREE.Geometry();
+                dotGeometry.vertices.push(new THREE.Vector3(h, s, v));
+                
+                const color = hsvToRgb(h, s, v);
+                const dotMaterial = new THREE.PointsMaterial({ size: 2, sizeAttenuation: false, color: color });
+                
+                const dot = new THREE.Points(dotGeometry, dotMaterial);
+                scene.add(dot);
+            }
+        }
+    }
+
+    // Position the camera
+    camera.position.z = 500;
+
+    // Animation logic
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Rotate the scene for a spinning effect
+        scene.rotation.x += 0.005;
+        scene.rotation.y += 0.005;
+        
+        renderer.render(scene, camera);
+    }
+
+    animate();
+}
+
+document.getElementById("showResults").addEventListener("click", function() {
+    document.getElementById("content").style.display = "none";
+    document.getElementById("resultsCanvas").style.display = "block"; // Show the 3D visualization
+    visualizeResults();
+});
+
 document.getElementById("download").addEventListener("click", function() {
     const name = document.getElementById("name").value;
     const deviation = document.getElementById("deviation").value;
@@ -93,6 +229,11 @@ document.getElementById("download").addEventListener("click", function() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+});
+
+document.getElementById("backToResults").addEventListener("click", function() {
+    document.getElementById("resultsCanvas").style.display = "none";
+    document.getElementById("content").style.display = "block";
 });
 
 function randomHsv() {
@@ -162,4 +303,5 @@ function arraysEqual(a, b) {
 }
 
 // Initialize
+initThreeJS();
 setColors();

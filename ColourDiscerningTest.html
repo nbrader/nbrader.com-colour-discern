@@ -32,7 +32,7 @@
             </div>
         </div>
         <button id="continue">Continue</button>
-        <button id="download">Download Results</button>
+        <button id="showResults">Show Results</button>
     </div>
 
     <div id="choiceScreen" style="display: none;">
@@ -42,11 +42,17 @@
         <button id="chooseA">A</button>
         <button id="chooseB">B</button>
     </div>
+    
+    <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
+        <button id="download">Download Results</button>
+        <button id="backToResults">Back</button>
+    </div>
 
     <div id="waitingMessage" style="display: none; color: white; font-size: 24px;">
         Get ready to choose in <span id="countdown">8</span> seconds...
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
     <script src="ColourDiscerningTest.js"></script>
 </body>
 </html>
