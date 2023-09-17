@@ -3,6 +3,27 @@ let results = [];
 
 let name, deviation;
 
+let gridR, gridG, gridB;
+
+function initGrids() {
+    const gridSize = 256; // Assuming the grid spans the full color space
+    const gridDivisions = 25; // Number of divisions in the grid, you can adjust this
+    
+    // Grid for Red (XY plane)
+    gridR = new THREE.GridHelper(gridSize, gridDivisions, 0x444444, 0x444444);
+    gridR.rotation.z = Math.PI / 2; // Rotate to align with YZ plane
+    gridR.position.set(0, 255/2, 255/2); // Positioned at the B = 0 plane
+
+    // Grid for Green (XZ plane)
+    gridG = new THREE.GridHelper(gridSize, gridDivisions, 0x444444, 0x444444);
+    gridG.position.set(255/2, 0, 255/2); // Positioned at the B = 0 plane
+
+    // Grid for Blue (YZ plane)
+    gridB = new THREE.GridHelper(gridSize, gridDivisions, 0x444444, 0x444444);
+    gridB.rotation.x = Math.PI / 2; // Rotate to align with XZ plane
+    gridB.position.set(255/2, 255/2, 0); // Positioned at the R = 0 plane
+}
+
 document.getElementById("start").addEventListener("click", function() {
     const fileInput = document.getElementById("csvUpload");
     const file = fileInput.files[0];
@@ -97,6 +118,7 @@ let scene, camera, renderer;
 
 function initThreeJS() {
     scene = new THREE.Scene();
+    
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -111,6 +133,8 @@ function initThreeJS() {
     // Reposition the camera
     camera.position.set(127.5, 127.5, 627.5); // Z is adjusted to pull the camera back
     camera.lookAt(127.5, 127.5, 127.5);
+    
+    initGrids();
 }
 
 initThreeJS();
@@ -183,6 +207,10 @@ function hsvToRgb(h, s, v) {
 document.getElementById("whiteLinesToggle").addEventListener("change", visualizeResults);
 document.getElementById("darkGreyLinesToggle").addEventListener("change", visualizeResults);
 document.getElementById("lightGreyDotsToggle").addEventListener("change", visualizeResults);
+document.getElementById("gridDotsToggle").addEventListener("change", visualizeResults);
+document.getElementById("gridToggle").addEventListener('change', function() {
+    visualizeResults(); // or you can create a separate function just to handle grid visibility.
+});
 
 function visualizeResults() {
     // Clear previous items in the scene
@@ -219,50 +247,74 @@ function visualizeResults() {
 
             // If colorA hasn't been drawn, draw it and mark as drawn
             if (!colorExistsInArray(colorA, alreadyDrawn)) {
-                drawDot(colorA, res.isCorrect);
+                drawDot(colorA);
                 alreadyDrawn.push(colorA);
             }
             
             // If colorB hasn't been drawn, draw it and mark as drawn
             if (!colorExistsInArray(colorB, alreadyDrawn)) {
-                drawDot(colorB, res.isCorrect);
+                drawDot(colorB);
                 alreadyDrawn.push(colorB);
             }
         });
     }
 
     // New drawDot function to visualize the halo effect
-    function drawDot(color, isCorrect) {
-        // First, draw a larger dot with the actual color of the result
-        let resultColor = isCorrect ? 0x333333 : 0xffffff; // dark grey for correct and white for incorrect
+    function drawDot(color) {
+        // First, draw a larger light grey dot for the halo effect
         let dotGeometry = new THREE.Geometry();
         dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-        let dotMaterial = new THREE.PointsMaterial({ size: 5, sizeAttenuation: true, color: resultColor });
+        let dotMaterial = new THREE.PointsMaterial({ size: 5, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey for the halo
         let dot = new THREE.Points(dotGeometry, dotMaterial);
         scene.add(dot);
 
-        // Then, draw the smaller grey dot over it
+        // Then, draw the smaller dot with the actual color over it
         dotGeometry = new THREE.Geometry();
         dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-        dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey
+        dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: new THREE.Color(`rgb(${color[0]}, ${color[1]}, ${color[2]})`) });
         dot = new THREE.Points(dotGeometry, dotMaterial);
         scene.add(dot);
     }
 
     // Standard RGB Colors Visualization
-    const step = 25;
-    for (let r = 0; r <= 255; r += step) {
-        for (let g = 0; g <= 255; g += step) {
-            for (let b = 0; b <= 255; b += step) {
-                const dotGeometry = new THREE.Geometry();
-                dotGeometry.vertices.push(new THREE.Vector3(r, g, b));
+    if (document.getElementById("gridDotsToggle").checked) {
+        const step = 25;
+        for (let r = 0; r <= 255; r += step) {
+            for (let g = 0; g <= 255; g += step) {
+                for (let b = 0; b <= 255; b += step) {
+                    const dotGeometry = new THREE.Geometry();
+                    dotGeometry.vertices.push(new THREE.Vector3(r, g, b));
 
-                const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
-                const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: color });
+                    const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+                    const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: color });
 
-                const dot = new THREE.Points(dotGeometry, dotMaterial);
-                scene.add(dot);
+                    const dot = new THREE.Points(dotGeometry, dotMaterial);
+                    scene.add(dot);
+                }
             }
+        }
+    }
+
+    // Check grid toggle and add/remove grids accordingly
+    if (document.getElementById("gridToggle").checked) {
+        if (!scene.children.includes(gridR)) {
+            scene.add(gridR);
+        }
+        if (!scene.children.includes(gridG)) {
+            scene.add(gridG);
+        }
+        if (!scene.children.includes(gridB)) {
+            scene.add(gridB);
+        }
+    } else {
+        if (scene.children.includes(gridR)) {
+            scene.remove(gridR);
+        }
+        if (scene.children.includes(gridG)) {
+            scene.remove(gridG);
+        }
+        if (scene.children.includes(gridB)) {
+            scene.remove(gridB);
         }
     }
 
