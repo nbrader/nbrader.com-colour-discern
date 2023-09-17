@@ -176,7 +176,7 @@ function visualizeResults() {
                 dotGeometry.vertices.push(new THREE.Vector3(r, g, b));
                 
                 const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
-                const dotMaterial = new THREE.PointsMaterial({ size: 2, sizeAttenuation: false, color: color });
+                const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: color });
                 
                 const dot = new THREE.Points(dotGeometry, dotMaterial);
                 scene.add(dot);
