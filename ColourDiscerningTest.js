@@ -185,7 +185,7 @@ document.getElementById("darkGreyLinesToggle").addEventListener("change", visual
 document.getElementById("lightGreyDotsToggle").addEventListener("change", visualizeResults);
 
 function visualizeResults() {
-    // Clear previous lines in the scene
+    // Clear previous items in the scene
     while(scene.children.length > 0){ 
         scene.remove(scene.children[0]); 
     }
@@ -217,27 +217,36 @@ function visualizeResults() {
             const colorA = [res.aRed, res.aGreen, res.aBlue];
             const colorB = [res.bRed, res.bGreen, res.bBlue];
 
-            // Function to draw a grey dot
-            const drawGreyDot = (color) => {
-                const dotGeometry = new THREE.Geometry();
-                dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-                const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey color
-                const dot = new THREE.Points(dotGeometry, dotMaterial);
-                scene.add(dot);
-            };
-
             // If colorA hasn't been drawn, draw it and mark as drawn
             if (!colorExistsInArray(colorA, alreadyDrawn)) {
-                drawGreyDot(colorA);
+                drawDot(colorA, res.isCorrect);
                 alreadyDrawn.push(colorA);
             }
             
             // If colorB hasn't been drawn, draw it and mark as drawn
             if (!colorExistsInArray(colorB, alreadyDrawn)) {
-                drawGreyDot(colorB);
+                drawDot(colorB, res.isCorrect);
                 alreadyDrawn.push(colorB);
             }
         });
+    }
+
+    // New drawDot function to visualize the halo effect
+    function drawDot(color, isCorrect) {
+        // First, draw a larger dot with the actual color of the result
+        let resultColor = isCorrect ? 0x333333 : 0xffffff; // dark grey for correct and white for incorrect
+        let dotGeometry = new THREE.Geometry();
+        dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
+        let dotMaterial = new THREE.PointsMaterial({ size: 5, sizeAttenuation: true, color: resultColor });
+        let dot = new THREE.Points(dotGeometry, dotMaterial);
+        scene.add(dot);
+
+        // Then, draw the smaller grey dot over it
+        dotGeometry = new THREE.Geometry();
+        dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
+        dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey
+        dot = new THREE.Points(dotGeometry, dotMaterial);
+        scene.add(dot);
     }
 
     // Standard RGB Colors Visualization
