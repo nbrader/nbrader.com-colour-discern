@@ -174,19 +174,23 @@ function hsvToRgb(h, s, v) {
     return new THREE.Color(r, g, b);
 }
 
+// Add event listeners to toggles for immediate updates.
+document.getElementById("whiteLinesToggle").addEventListener("change", visualizeResults);
+document.getElementById("darkGreyLinesToggle").addEventListener("change", visualizeResults);
+document.getElementById("lightGreyDotsToggle").addEventListener("change", visualizeResults);
+
 function visualizeResults() {
-    const incorrectResults = results.filter(r => !r.isCorrect);
     // Clear previous lines in the scene
     while(scene.children.length > 0){ 
         scene.remove(scene.children[0]); 
     }
 
-    // Add lines based on toggle status
+    // Lines visualization
     results.forEach(res => {
         const geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(res.aRed, res.aGreen, res.aBlue));
         geometry.vertices.push(new THREE.Vector3(res.bRed, res.bGreen, res.bBlue));
-        
+
         let material;
         if (document.getElementById("whiteLinesToggle").checked && !res.isCorrect) {
             material = new THREE.LineBasicMaterial({color: 0xffffff});
@@ -199,31 +203,49 @@ function visualizeResults() {
         const line = new THREE.Line(geometry, material);
         scene.add(line);
     });
-    
+
     // Check if the light grey dots toggle is checked
     if (document.getElementById("lightGreyDotsToggle").checked) {
-        memorizedColors.forEach(color => {
-            const dotGeometry = new THREE.Geometry();
-            dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-            
-            const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey color
+        const alreadyDrawn = [];  // To keep track of drawn colors and avoid duplicates
 
-            const dot = new THREE.Points(dotGeometry, dotMaterial);
-            scene.add(dot);
+        results.forEach(res => {
+            const colorA = [res.aRed, res.aGreen, res.aBlue];
+            const colorB = [res.bRed, res.bGreen, res.bBlue];
+
+            // Function to draw a grey dot
+            const drawGreyDot = (color) => {
+                const dotGeometry = new THREE.Geometry();
+                dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
+                const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey color
+                const dot = new THREE.Points(dotGeometry, dotMaterial);
+                scene.add(dot);
+            };
+
+            // If colorA hasn't been drawn, draw it and mark as drawn
+            if (!colorExistsInArray(colorA, alreadyDrawn)) {
+                drawGreyDot(colorA);
+                alreadyDrawn.push(colorA);
+            }
+            
+            // If colorB hasn't been drawn, draw it and mark as drawn
+            if (!colorExistsInArray(colorB, alreadyDrawn)) {
+                drawGreyDot(colorB);
+                alreadyDrawn.push(colorB);
+            }
         });
     }
 
-    // Create a 3D grid of dots with RGB colors
-    const step = 25; // Adjust as needed, 25 gives a nice distribution for RGB
+    // Standard RGB Colors Visualization
+    const step = 25;
     for (let r = 0; r <= 255; r += step) {
         for (let g = 0; g <= 255; g += step) {
             for (let b = 0; b <= 255; b += step) {
                 const dotGeometry = new THREE.Geometry();
                 dotGeometry.vertices.push(new THREE.Vector3(r, g, b));
-                
+
                 const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
                 const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: color });
-                
+
                 const dot = new THREE.Points(dotGeometry, dotMaterial);
                 scene.add(dot);
             }
@@ -240,6 +262,11 @@ function visualizeResults() {
     }
 
     animate();
+}
+
+// Function to check if a color exists in an array
+function colorExistsInArray(color, colorArray) {
+    return colorArray.some(existingColor => arraysEqual(existingColor, color));
 }
 
 document.getElementById("showResults").addEventListener("click", function() {
