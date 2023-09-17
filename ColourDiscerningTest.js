@@ -57,13 +57,17 @@ document.getElementById("continue").addEventListener("click", function() {
             clearInterval(interval);
         }
     }, 1000);
-
+    
     setTimeout(function() {
         document.getElementById("waitingMessage").style.display = "none"; // Hide waiting message
         const random = Math.random();
         const chosenColor = random > 0.5 ? colorA : colorB;
         document.getElementById("testColor").querySelector(".color").style.backgroundColor = `rgb(${chosenColor[0]}, ${chosenColor[1]}, ${chosenColor[2]})`;
-        document.getElementById("choiceScreen").style.display = "block";
+
+        // Hiding the memorize screen and showing the choice screen
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('choiceScreen').style.display = 'block';
+
         document.body.style.backgroundColor = "#111"; // change background to dark grey
 
         // Store the chosenColor directly, not just its visual representation
