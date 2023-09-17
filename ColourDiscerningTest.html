@@ -48,10 +48,19 @@
     </div>
     
     <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
+        <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
+        <input type="checkbox" id="whiteLinesToggle">
+
+        <label for="darkGreyLinesToggle">Show Dark Grey Lines for Distinguished Colors:</label>
+        <input type="checkbox" id="darkGreyLinesToggle">
+        
+        <label for="lightGreyDotsToggle">Show Light Grey Dots for Memorized Colors:</label>
+        <input type="checkbox" id="lightGreyDotsToggle">
+
         <button id="download">Download Results</button>
         <button id="backToResults">Back</button>
     </div>
-
+    
     <div id="waitingMessage" style="display: none; color: white; font-size: 24px;">
         Wait for <span id="countdown">8</span> seconds...
     </div>

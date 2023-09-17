@@ -181,15 +181,37 @@ function visualizeResults() {
         scene.remove(scene.children[0]); 
     }
 
-    // Add lines for every incorrect result
-    incorrectResults.forEach(res => {
+    // Add lines based on toggle status
+    results.forEach(res => {
         const geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(res.aRed, res.aGreen, res.aBlue));
         geometry.vertices.push(new THREE.Vector3(res.bRed, res.bGreen, res.bBlue));
-        const material = new THREE.LineBasicMaterial({color: 0xffffff});
+        
+        let material;
+        if (document.getElementById("whiteLinesToggle").checked && !res.isCorrect) {
+            material = new THREE.LineBasicMaterial({color: 0xffffff});
+        } else if (document.getElementById("darkGreyLinesToggle").checked && res.isCorrect) {
+            material = new THREE.LineBasicMaterial({color: 0x333333});
+        } else {
+            return; // Skip adding the line if none of the conditions match
+        }
+        
         const line = new THREE.Line(geometry, material);
         scene.add(line);
     });
+    
+    // Check if the light grey dots toggle is checked
+    if (document.getElementById("lightGreyDotsToggle").checked) {
+        memorizedColors.forEach(color => {
+            const dotGeometry = new THREE.Geometry();
+            dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
+            
+            const dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey color
+
+            const dot = new THREE.Points(dotGeometry, dotMaterial);
+            scene.add(dot);
+        });
+    }
 
     // Create a 3D grid of dots with RGB colors
     const step = 25; // Adjust as needed, 25 gives a nice distribution for RGB
@@ -298,11 +320,35 @@ function checkChoice(choice) {
         name: name, 
         deviation: deviation
     });
+    
+    extractMemorizedColors();
 
     // Reset to main screen
     document.getElementById("choiceScreen").style.display = "none";
     document.getElementById("content").style.display = "block"; 
     setColors();
+}
+
+let memorizedColors = [];
+
+function extractMemorizedColors() {
+    results.forEach(res => {
+        const colorA = [res.aRed, res.aGreen, res.aBlue];
+        const colorB = [res.bRed, res.bGreen, res.bBlue];
+
+        // Add colors to memorizedColors if not already present
+        if (!colorExistsInArray(colorA, memorizedColors)) {
+            memorizedColors.push(colorA);
+        }
+        if (!colorExistsInArray(colorB, memorizedColors)) {
+            memorizedColors.push(colorB);
+        }
+    });
+}
+
+// Helper function to check if a color already exists in an array
+function colorExistsInArray(color, colorArray) {
+    return colorArray.some(arrayColor => arraysEqual(color, arrayColor));
 }
 
 function arraysEqual(a, b) {
