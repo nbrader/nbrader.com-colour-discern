@@ -48,7 +48,7 @@ function startTest() {
     // Hide the instructions
     document.getElementById("instructions").style.display = "none";
     
-    // Show the content
+    // Show the memorising screen
     document.getElementById("content").style.display = "block";
     setColors();
 }
