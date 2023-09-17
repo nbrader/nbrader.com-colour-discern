@@ -75,6 +75,13 @@ function initThreeJS() {
 
     // Add controls to allow the cube to be rotated
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    
+    // Set the orbit center to the middle of the RGB cube
+    controls.target.set(127.5, 127.5, 127.5);
+
+    // Reposition the camera
+    camera.position.set(127.5, 127.5, 627.5); // Z is adjusted to pull the camera back
+    camera.lookAt(127.5, 127.5, 127.5);
 }
 
 // Helper function: Convert HSV to RGB
