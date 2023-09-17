@@ -42,7 +42,7 @@ document.getElementById("continue").addEventListener("click", function() {
         document.getElementById("waitingMessage").style.display = "none"; // Hide waiting message
         const random = Math.random();
         const chosenColor = random > 0.5 ? colorA : colorB;
-        document.getElementById("testColor").querySelector(".color").style.backgroundColor = `hsl(${chosenColor[0]}, ${chosenColor[1]}%, ${chosenColor[2]}%)`;
+        document.getElementById("testColor").querySelector(".color").style.backgroundColor = `rgb(${chosenColor[0]}, ${chosenColor[1]}, ${chosenColor[2]})`;
         document.getElementById("choiceScreen").style.display = "block";
         document.body.style.backgroundColor = "#111"; // change background to dark grey
 
@@ -143,7 +143,7 @@ function hsvToRgb(h, s, v) {
 
 function visualizeResults() {
     const incorrectResults = results.filter(r => !r.isCorrect);
-    
+    console.log(incorrectResults);
     // Clear previous lines in the scene
     while(scene.children.length > 0){ 
         scene.remove(scene.children[0]); 
@@ -152,22 +152,23 @@ function visualizeResults() {
     // Add lines for every incorrect result
     incorrectResults.forEach(res => {
         const geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3(res.aHue, res.aSaturation, res.aValue));
-        geometry.vertices.push(new THREE.Vector3(res.bHue, res.bSaturation, res.bValue));
+        console.log(res.aRed, res.aGreen, res.aBlue, res.bRed, res.bGreen, res.bBlue);
+        geometry.vertices.push(new THREE.Vector3(res.aRed, res.aGreen, res.aBlue));
+        geometry.vertices.push(new THREE.Vector3(res.bRed, res.bGreen, res.bBlue));
         const material = new THREE.LineBasicMaterial({color: 0xff0000});
         const line = new THREE.Line(geometry, material);
         scene.add(line);
     });
 
-    // Create a 3D grid of dots with HSV colors
-    const step = 10;
-    for (let h = 0; h <= 360; h += step) {
-        for (let s = 0; s <= 100; s += step) {
-            for (let v = 0; v <= 100; v += step) {
+    // Create a 3D grid of dots with RGB colors
+    const step = 25; // Adjust as needed, 25 gives a nice distribution for RGB
+    for (let r = 0; r <= 255; r += step) {
+        for (let g = 0; g <= 255; g += step) {
+            for (let b = 0; b <= 255; b += step) {
                 const dotGeometry = new THREE.Geometry();
-                dotGeometry.vertices.push(new THREE.Vector3(h, s, v));
+                dotGeometry.vertices.push(new THREE.Vector3(r, g, b));
                 
-                const color = hsvToRgb(h, s, v);
+                const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
                 const dotMaterial = new THREE.PointsMaterial({ size: 2, sizeAttenuation: false, color: color });
                 
                 const dot = new THREE.Points(dotGeometry, dotMaterial);
@@ -210,9 +211,9 @@ document.getElementById("download").addEventListener("click", function() {
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
     const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
 
-    let csv = `Name, Max Deviation, A Hue, A Saturation, A Value, B Hue, B Saturation, B Value, Choice, Is Correct\n`;
+    let csv = `Name,Max Deviation,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
-        csv += `${name}, ${deviation}, ${res.aHue}, ${res.aSaturation}, ${res.aValue}, ${res.bHue}, ${res.bSaturation}, ${res.bValue}, ${res.choice}, ${res.isCorrect}\n`;
+        csv += `${name},${deviation},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
     });
     
     const blob = new Blob([csv], {type: "text/csv"});
@@ -231,39 +232,27 @@ document.getElementById("backToResults").addEventListener("click", function() {
     document.getElementById("content").style.display = "block";
 });
 
-function randomHsv() {
-    return [Math.floor(Math.random() * 360), Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
+function randomRgb() {
+    return [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
 }
 
 function setColors() {
-    colorA = randomHsv();
+    colorA = randomRgb();
 
-    // Get the deviation from the input
-    const deviationPercent = document.getElementById("deviation").value;
+    // Use the RGB color space for the deviation calculations
+    colorB = colorA.map(val => {
+        let deviationValue;
+        do {
+            deviationValue = val + (Math.random() * 2 - 1) * currentDeviation;
+        } while (deviationValue < 0 || deviationValue > 255);
+        return Math.floor(deviationValue);
+    });
 
-    // Calculate deviation for Hue
-    let hueDeviation;
-    do {
-        hueDeviation = colorA[0] + ((Math.random() * 2 - 1) * deviationPercent/100 * 360);
-    } while (hueDeviation < 0 || hueDeviation > 360);
-
-    // Calculate deviation for Saturation
-    let saturationDeviation;
-    do {
-        saturationDeviation = colorA[1] + ((Math.random() * 2 - 1) * deviationPercent/100 * 100);
-    } while (saturationDeviation < 0 || saturationDeviation > 100);
-
-    // Calculate deviation for Value
-    let valueDeviation;
-    do {
-        valueDeviation = colorA[2] + ((Math.random() * 2 - 1) * deviationPercent/100 * 100);
-    } while (valueDeviation < 0 || valueDeviation > 100);
-
-    colorB = [Math.floor(hueDeviation), Math.floor(saturationDeviation), Math.floor(valueDeviation)];
-
-    document.getElementById("a").querySelector(".color").style.backgroundColor = `hsl(${colorA[0]}, ${colorA[1]}%, ${colorA[2]}%)`;
-    document.getElementById("b").querySelector(".color").style.backgroundColor = `hsl(${colorB[0]}, ${colorB[1]}%, ${colorB[2]}%)`;
+    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
+    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
 }
+
+
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
@@ -271,12 +260,12 @@ function checkChoice(choice) {
                       (choice === "b" && arraysEqual(colorB, testColor));
 
     results.push({
-        aHue: colorA[0],
-        aSaturation: colorA[1],
-        aValue: colorA[2],
-        bHue: colorB[0],
-        bSaturation: colorB[1],
-        bValue: colorB[2],
+        aRed: colorA[0],
+        aGreen: colorA[1],
+        aBlue: colorA[2],
+        bRed: colorB[0],
+        bGreen: colorB[1],
+        bBlue: colorB[2],
         choice: choice,
         isCorrect: isCorrect,
         name: currentName,
