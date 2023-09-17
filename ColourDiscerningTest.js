@@ -359,7 +359,7 @@ document.getElementById("download").addEventListener("click", function() {
     const second = String(now.getSeconds()).padStart(2, '0');
     
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
-    const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
+    const filename = `ColorTest_${name}_DeviationPercent${deviationPercent.value}_${formattedDate}.csv`;
 
     let csv = `Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
@@ -417,8 +417,8 @@ function checkChoice(choice) {
         bBlue: colorB[2],
         choice: choice,
         isCorrect: isCorrect,
-        name: name, 
-        deviationPercent: deviationPercent // save the deviation percent
+        name: name,
+        deviationPercent: deviationPercent.value
     });
     
     extractMemorizedColors();
@@ -473,6 +473,7 @@ function parseCSV(csvData) {
     // Start from 1 to skip the header row
     for(let i = 1; i < rows.length; i++) {
         const cells = rows[i].split(",");
+        
         if(cells.length > 1) { // Check to prevent processing empty lines
             results.push({
                 aRed: parseInt(cells[2]),
@@ -484,7 +485,7 @@ function parseCSV(csvData) {
                 choice: cells[8],
                 isCorrect: cells[9] === "true",
                 name: cells[0],
-                deviation: cells[1]
+                deviationPercent: parseFloat(cells[1])
             });
         }
     }
