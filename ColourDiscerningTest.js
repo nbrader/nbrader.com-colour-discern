@@ -1,8 +1,7 @@
 let colorA, colorB;
 let results = [];
 
-let currentName, currentDeviation;
-let initialName, initialDeviation; // Store initial values
+let name, deviation;
 
 document.getElementById("start").addEventListener("click", function() {
     const fileInput = document.getElementById("csvUpload");
@@ -25,21 +24,12 @@ document.getElementById("start").addEventListener("click", function() {
 });
 
 function startTest() {
-    currentName = document.getElementById("name").value;
-    if (!currentName) {
+    name = document.getElementById("name").value;
+    if (!name) {
         alert("Please enter your name.");
         return;
     }
-
-    currentDeviation = document.getElementById("deviation").value;
-
-    // Store these as initial values if they're not set yet
-    if (!initialName) {
-        initialName = currentName;
-    }
-    if (!initialDeviation) {
-        initialDeviation = currentDeviation;
-    }
+    deviation = document.getElementById("deviation").value;
 
     // Disable name and deviation inputs
     document.getElementById("name").disabled = true;
@@ -233,10 +223,6 @@ document.getElementById("showResults").addEventListener("click", function() {
 });
 
 document.getElementById("download").addEventListener("click", function() {
-    const name = initialName;  // Use the initial name
-    const deviation = initialDeviation; // Use the initial deviation
-
-    // Date formatting for filename
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');  // Months are 0-11 in JS
@@ -246,7 +232,7 @@ document.getElementById("download").addEventListener("click", function() {
     const second = String(now.getSeconds()).padStart(2, '0');
     
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
-    const filename = `ColorTest_${currentName}_Deviation${currentDeviation}_${formattedDate}.csv`;
+    const filename = `ColorTest_${name}_Deviation${deviation}_${formattedDate}.csv`;
 
     let csv = `Name,Max Deviation,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
@@ -280,7 +266,7 @@ function setColors() {
     colorB = colorA.map(val => {
         let deviationValue;
         do {
-            deviationValue = val + (Math.random() * 2 - 1) * currentDeviation;
+            deviationValue = val + (Math.random() * 2 - 1) * deviation;
         } while (deviationValue < 0 || deviationValue > 255);
         return Math.floor(deviationValue);
     });
@@ -305,8 +291,8 @@ function checkChoice(choice) {
         bBlue: colorB[2],
         choice: choice,
         isCorrect: isCorrect,
-        name: currentName,
-        deviation: currentDeviation
+        name: name, 
+        deviation: deviation
     });
 
     // Reset to main screen
