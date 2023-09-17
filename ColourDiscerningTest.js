@@ -212,12 +212,11 @@ function hsvToRgb(h, s, v) {
 
 // Add event listeners to toggles for immediate updates.
 document.getElementById("whiteLinesToggle").addEventListener("change", visualizeResults);
-document.getElementById("darkGreyLinesToggle").addEventListener("change", visualizeResults);
-document.getElementById("lightGreyDotsToggle").addEventListener("change", visualizeResults);
+document.getElementById("darkBlueLinesToggle").addEventListener("change", visualizeResults);
+document.getElementById("lightPrevColsToggle").addEventListener("change", visualizeResults);
 document.getElementById("gridDotsToggle").addEventListener("change", visualizeResults);
-document.getElementById("gridToggle").addEventListener('change', function() {
-    visualizeResults(); // or you can create a separate function just to handle grid visibility.
-});
+document.getElementById("greyOutlinesToggle").addEventListener("change", visualizeResults);
+document.getElementById("gridToggle").addEventListener('change', visualizeResults);
 
 function visualizeResults() {
     // Clear previous items in the scene
@@ -234,8 +233,8 @@ function visualizeResults() {
         let material;
         if (document.getElementById("whiteLinesToggle").checked && !res.isCorrect) {
             material = new THREE.LineBasicMaterial({color: 0xffffff});
-        } else if (document.getElementById("darkGreyLinesToggle").checked && res.isCorrect) {
-            material = new THREE.LineBasicMaterial({color: 0x333333});
+        } else if (document.getElementById("darkBlueLinesToggle").checked && res.isCorrect) {
+            material = new THREE.LineBasicMaterial({color: 0x335555});
         } else {
             return; // Skip adding the line if none of the conditions match
         }
@@ -245,7 +244,7 @@ function visualizeResults() {
     });
 
     // Check if the light grey dots toggle is checked
-    if (document.getElementById("lightGreyDotsToggle").checked) {
+    if (document.getElementById("lightPrevColsToggle").checked) {
         const alreadyDrawn = [];  // To keep track of drawn colors and avoid duplicates
 
         results.forEach(res => {
@@ -265,21 +264,23 @@ function visualizeResults() {
             }
         });
     }
-
-    // New drawDot function to visualize the halo effect
+    
     function drawDot(color) {
-        // First, draw a larger light grey dot for the halo effect
+        // Check if the grey outlines toggle is checked
+        if (document.getElementById("greyOutlinesToggle").checked) {
+            // Draw a larger light grey dot for the halo effect
+            let dotGeometry = new THREE.Geometry();
+            dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
+            let dotMaterial = new THREE.PointsMaterial({ size: 5, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey for the halo
+            let dot = new THREE.Points(dotGeometry, dotMaterial);
+            scene.add(dot);
+        }
+
+        // Draw the smaller dot with the actual color over it
         let dotGeometry = new THREE.Geometry();
         dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-        let dotMaterial = new THREE.PointsMaterial({ size: 5, sizeAttenuation: true, color: 0xd3d3d3 }); // light grey for the halo
+        let dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: new THREE.Color(`rgb(${color[0]}, ${color[1]}, ${color[2]})`) });
         let dot = new THREE.Points(dotGeometry, dotMaterial);
-        scene.add(dot);
-
-        // Then, draw the smaller dot with the actual color over it
-        dotGeometry = new THREE.Geometry();
-        dotGeometry.vertices.push(new THREE.Vector3(color[0], color[1], color[2]));
-        dotMaterial = new THREE.PointsMaterial({ size: 3, sizeAttenuation: true, color: new THREE.Color(`rgb(${color[0]}, ${color[1]}, ${color[2]})`) });
-        dot = new THREE.Points(dotGeometry, dotMaterial);
         scene.add(dot);
     }
 
