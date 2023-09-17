@@ -186,7 +186,7 @@ function visualizeResults() {
         const geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(res.aRed, res.aGreen, res.aBlue));
         geometry.vertices.push(new THREE.Vector3(res.bRed, res.bGreen, res.bBlue));
-        const material = new THREE.LineBasicMaterial({color: 0xff0000});
+        const material = new THREE.LineBasicMaterial({color: 0xffffff});
         const line = new THREE.Line(geometry, material);
         scene.add(line);
     });
