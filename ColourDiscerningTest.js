@@ -398,10 +398,9 @@ function setColors() {
 
 function generateColorWithDeviation(baseColor, actualDeviation) {
     return baseColor.map(channel => {
-        let deviation = Math.floor(Math.random() * (actualDeviation + 1));
-        let adjustedChannel = (Math.random() > 0.5) ? channel + deviation : channel - deviation;
-        adjustedChannel = Math.max(0, Math.min(adjustedChannel, 255));
-        return adjustedChannel;
+        let deviation = Math.floor(Math.random() * (2 * actualDeviation + 1)) - actualDeviation;
+        let adjustedChannel = channel + deviation;
+        return Math.max(0, Math.min(adjustedChannel, 255));
     });
 }
 
