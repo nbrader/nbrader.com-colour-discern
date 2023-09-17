@@ -375,6 +375,8 @@ document.getElementById("download").addEventListener("click", function() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    
+    console.log("Results before exporting:", results);
 });
 
 document.getElementById("backToResults").addEventListener("click", function() {
@@ -483,12 +485,15 @@ function parseCSV(csvData) {
                 bGreen: parseInt(cells[6]),
                 bBlue: parseInt(cells[7]),
                 choice: cells[8],
-                isCorrect: cells[9] === "true",
+                isCorrect: cells[9].trim() === "true",
                 name: cells[0],
                 deviationPercent: parseFloat(cells[1])
             });
         }
     }
+    
+    console.log("Loaded results:", results);
+    
     visualizeResults(); // Visualize the loaded data
 }
 
