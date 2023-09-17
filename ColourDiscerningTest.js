@@ -182,11 +182,6 @@ function visualizeResults() {
     // Animation logic
     function animate() {
         requestAnimationFrame(animate);
-        
-        // Rotate the scene for a spinning effect
-        scene.rotation.x += 0.005;
-        scene.rotation.y += 0.005;
-        
         renderer.render(scene, camera);
     }
 
