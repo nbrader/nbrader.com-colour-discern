@@ -16,7 +16,7 @@
         <input type="text" id="name" placeholder="Enter your name">
 
         <label for="deviationPercent">Deviation Percent:</label>
-        <input type="number" id="deviationPercent" min="0" max="100" step="0.1" placeholder="Enter percentage (0-100)">
+        <input type="number" id="deviationPercent" min="0" max="100" step="0.1" placeholder="Enter percentage (0-100)" value="50">
         
         <input type="file" id="csvUpload" accept=".csv">
         
@@ -49,19 +49,19 @@
     
     <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
         <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
-        <input type="checkbox" id="whiteLinesToggle">
+        <input type="checkbox" id="whiteLinesToggle" checked>
 
         <label for="darkGreyLinesToggle">Show Dark Grey Lines for Distinguished Colors:</label>
         <input type="checkbox" id="darkGreyLinesToggle">
         
         <label for="lightGreyDotsToggle">Show Light Grey Dots for Memorized Colors:</label>
-        <input type="checkbox" id="lightGreyDotsToggle">
+        <input type="checkbox" id="lightGreyDotsToggle" checked>
         
         <label for="gridDotsToggle">Show Coloured Grid of Dots:</label>
-        <input type="checkbox" id="gridDotsToggle">
+        <input type="checkbox" id="gridDotsToggle" checked>
         
-        <label for="lightGreyDotsToggle">Show Grid</label>
-        <input type="checkbox" id="gridToggle">
+        <label for="gridToggle">Show Grid</label>
+        <input type="checkbox" id="gridToggle" checked>
 
         <button id="download">Download Results</button>
         <button id="backToResults">Back</button>

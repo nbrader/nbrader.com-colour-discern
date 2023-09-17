@@ -22,6 +22,13 @@ function initGrids() {
     gridB = new THREE.GridHelper(gridSize, gridDivisions, 0x444444, 0x444444);
     gridB.rotation.x = Math.PI / 2; // Rotate to align with XZ plane
     gridB.position.set(255/2, 255/2, 0); // Positioned at the R = 0 plane
+    
+    // Apply defaults
+    if (document.getElementById("gridToggle").checked) {
+        scene.add(gridR);
+        scene.add(gridG);
+        scene.add(gridB);
+    }
 }
 
 document.getElementById("start").addEventListener("click", function() {
