@@ -485,7 +485,7 @@ function parseCSV(csvData) {
                 bGreen: parseInt(cells[6]),
                 bBlue: parseInt(cells[7]),
                 choice: cells[8],
-                isCorrect: cells[9].trim() === "true",
+                isCorrect: cells[9].trim() === "true" || cells[9].trim() === "TRUE",
                 name: cells[0],
                 deviationPercent: parseFloat(cells[1])
             });
