@@ -48,26 +48,39 @@
     </div>
     
     <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
-        <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
-        <input type="checkbox" id="whiteLinesToggle" checked>
+        <!-- 3D Visualization Controls and Canvas -->
+        <div id="visualizer3D" style="width: 70%; height: 100%; float: left;">
+            <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
+            <input type="checkbox" id="whiteLinesToggle" checked>
 
-        <label for="darkBlueLinesToggle">Show Dark Blue Lines for Distinguished Colors:</label>
-        <input type="checkbox" id="darkBlueLinesToggle" checked>
-        
-        <label for="lightPrevColsToggle">Show Previously Memorized Colors:</label>
-        <input type="checkbox" id="lightPrevColsToggle" checked>
-        
-        <label for="greyOutlinesToggle">Highlight Previously Memorized Colours:</label>
-        <input type="checkbox" id="greyOutlinesToggle">
-        
-        <label for="gridDotsToggle">Show 3D Grid of Colours:</label>
-        <input type="checkbox" id="gridDotsToggle">
-        
-        <label for="gridToggle">Show Zero Planes:</label>
-        <input type="checkbox" id="gridToggle" checked>
+            <label for="darkBlueLinesToggle">Show Dark Blue Lines for Distinguished Colors:</label>
+            <input type="checkbox" id="darkBlueLinesToggle" checked>
+            
+            <label for="lightPrevColsToggle">Show Previously Memorized Colors:</label>
+            <input type="checkbox" id="lightPrevColsToggle" checked>
+            
+            <label for="greyOutlinesToggle">Highlight Previously Memorized Colours:</label>
+            <input type="checkbox" id="greyOutlinesToggle">
+            
+            <label for="gridDotsToggle">Show 3D Grid of Colours:</label>
+            <input type="checkbox" id="gridDotsToggle">
+            
+            <label for="gridToggle">Show Zero Planes:</label>
+            <input type="checkbox" id="gridToggle" checked>
 
-        <button id="download">Export CSV</button>
-        <button id="backToResults">Back</button>
+            <!-- Canvas for 3D visualization will be appended here by THREE.js -->
+        </div>
+
+        <!-- 2D Histogram Canvas -->
+        <div id="histogram2D" style="width: 30%; height: 100%; float: left; background-color: #f6f6f6;">
+            <h3 style="text-align: center;">Color Discrimination Histogram</h3>
+            <!-- Canvas for 2D histogram will be appended here by THREE.js -->
+        </div>
+
+        <div style="clear: both;">
+            <button id="download">Export CSV</button>
+            <button id="backToResults">Back</button>
+        </div>
     </div>
     
     <div id="waitingMessage" style="display: none; color: white; font-size: 24px;">

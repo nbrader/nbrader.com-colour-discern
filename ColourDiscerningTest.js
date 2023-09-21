@@ -218,6 +218,23 @@ document.getElementById("gridDotsToggle").addEventListener("change", visualizeRe
 document.getElementById("greyOutlinesToggle").addEventListener("change", visualizeResults);
 document.getElementById("gridToggle").addEventListener('change', visualizeResults);
 
+// Global Variables for 2D Histogram
+let histogramScene, histogramRenderer, histogramCamera;
+
+function setupHistogramRenderer() {
+    const width = 600; // or any desired width
+    const height = 200; // or any desired height
+
+    histogramScene = new THREE.Scene();
+    histogramRenderer = new THREE.WebGLRenderer();
+    histogramRenderer.setSize(width, height);
+    document.getElementById("histogram2D").appendChild(histogramRenderer.domElement);
+
+    // 2D camera (Orthographic camera)
+    histogramCamera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
+    histogramCamera.position.z = 10;
+}
+
 function visualizeResults() {
     // Clear previous items in the scene
     while(scene.children.length > 0){ 
@@ -326,6 +343,53 @@ function visualizeResults() {
         }
     }
 
+    // Prepare the data for the histogram
+    const binSize = 10;
+    const maxDistance = 441.673;  // Maximum distance in RGB space
+    const numBins = Math.ceil(maxDistance / binSize);
+    const histogramData = new Array(numBins).fill(0).map(() => ({ correct: 0, total: 0 }));
+
+    results.forEach(res => {
+        const distance = Math.sqrt(
+            (res.aRed - res.bRed) ** 2 +
+            (res.aGreen - res.bGreen) ** 2 +
+            (res.aBlue - res.bBlue) ** 2
+        );
+        const bin = Math.floor(distance / binSize);
+        histogramData[bin].total++;
+        if (res.isCorrect) histogramData[bin].correct++;
+    });
+
+    // Create and position histogram bars
+    const barWidth = 5;
+    let xOffset = -(barWidth * numBins) / 2;
+    const maxHeight = 150;
+
+    histogramData.forEach(binData => {
+        const totalHeight = (binData.total / results.length) * maxHeight;
+        const correctHeight = (binData.correct / results.length) * maxHeight;
+        const incorrectHeight = totalHeight - correctHeight;
+
+        // White part
+        const geometryWhite = new THREE.BoxGeometry(barWidth, incorrectHeight, 1);
+        const materialWhite = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const barWhite = new THREE.Mesh(geometryWhite, materialWhite);
+        barWhite.position.set(xOffset, incorrectHeight / 2, 0);
+
+        // Grey part (stacked on top)
+        const geometryGrey = new THREE.BoxGeometry(barWidth, correctHeight, 1);
+        const materialGrey = new THREE.MeshBasicMaterial({ color: 0x888888 });
+        const barGrey = new THREE.Mesh(geometryGrey, materialGrey);
+        barGrey.position.set(xOffset, incorrectHeight + (correctHeight / 2), 0);
+
+        histogramScene.add(barWhite);
+        histogramScene.add(barGrey);
+
+        xOffset += barWidth;
+    });
+
+    histogramRenderer.render(histogramScene, histogramCamera);
+
     // Position the camera
     camera.position.z = 500;
 
@@ -337,6 +401,9 @@ function visualizeResults() {
 
     animate();
 }
+
+// Ensure to call this function at the start to setup the 2D renderer.
+setupHistogramRenderer();
 
 // Function to check if a color exists in an array
 function colorExistsInArray(color, colorArray) {
