@@ -1,0 +1,10 @@
+Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct
+Alex,19.6,229,214,170,221,208,161,b,true
+Alex,19.6,245,181,186,255,150,194,b,true
+Alex,19.6,174,37,25,154,74,0,b,true
+Alex,19.6,98,102,53,142,68,27,a,true
+Alex,19.6,13,117,32,0,158,46,a,true
+Alex,19.6,105,114,187,61,139,234,a,true
+Alex,19.6,252,38,217,218,83,255,a,true
+Alex,19.6,195,227,11,223,200,23,b,true
+Alex,19.6,241,194,223,202,201,221,b,true

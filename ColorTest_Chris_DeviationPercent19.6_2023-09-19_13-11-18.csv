@@ -1,0 +1,7 @@
+Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct
+Chris,19.6,222,183,49,199,161,98,b,true
+Chris,19.6,74,57,138,120,33,184,a,false
+Chris,19.6,65,137,145,29,108,179,a,true
+Chris,19.6,44,27,235,81,0,255,a,false
+Chris,19.6,49,147,205,49,181,190,b,true
+Chris,19.6,42,211,194,0,248,195,a,false
