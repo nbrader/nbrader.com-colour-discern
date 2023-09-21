@@ -71,9 +71,13 @@
             <!-- Canvas for 3D visualization will be appended here by THREE.js -->
         </div>
 
-        <!-- 2D Histogram Canvas -->
+        It doesn't scale them. Also the label of the new toggle is on a white background so disappears.
         <div id="histogram2D" style="width: 30%; height: 100%; float: left; background-color: #f6f6f6;">
             <h3 style="text-align: center;">Color Discrimination Histogram</h3>
+            
+            <label for="normalizeToggle" style="color: #333;">Normalize Histogram:</label>
+            <input type="checkbox" id="normalizeToggle">
+
             <!-- Canvas for 2D histogram will be appended here by THREE.js -->
         </div>
 

@@ -217,6 +217,7 @@ document.getElementById("lightPrevColsToggle").addEventListener("change", visual
 document.getElementById("gridDotsToggle").addEventListener("change", visualizeResults);
 document.getElementById("greyOutlinesToggle").addEventListener("change", visualizeResults);
 document.getElementById("gridToggle").addEventListener('change', visualizeResults);
+document.getElementById("normalizeToggle").addEventListener('change', visualizeResults);
 
 // Global Variables for 2D Histogram
 let histogramScene, histogramRenderer, histogramCamera;
@@ -342,7 +343,10 @@ function visualizeResults() {
             scene.remove(gridB);
         }
     }
-
+    
+    // Clear the histogramScene
+    histogramScene.children.forEach(object => histogramScene.remove(object));
+    
     // Prepare the data for the histogram
     const binSize = 10;
     const maxDistance = 441.673;  // Maximum distance in RGB space
@@ -359,16 +363,44 @@ function visualizeResults() {
         histogramData[bin].total++;
         if (res.isCorrect) histogramData[bin].correct++;
     });
+    
+    // Desired maximum height for the histogram bars
+    const maxHeight = 150;
+
+    // Calculate combined heights for each bin
+    const combinedHeights = histogramData.map(bin => bin.total);
+
+    // Find the maximum combined height
+    const maxCombinedHeight = Math.max(...combinedHeights);
+
+    // Determine if we're normalizing the histogram
+    const normalizeHistogram = document.getElementById("normalizeToggle").checked;
+
+    // Adjust the scaling factor based on normalization requirement
+    let scale;
+    if (normalizeHistogram) {
+        const nonZeroBins = histogramData.filter(bin => bin.total > 0);
+        const maxNonZeroHeight = Math.max(...nonZeroBins.map(bin => bin.total));
+        scale = maxHeight / maxNonZeroHeight;
+    } else {
+        scale = maxHeight / maxCombinedHeight;
+    }
 
     // Create and position histogram bars
     const barWidth = 5;
     let xOffset = -(barWidth * numBins) / 2;
-    const maxHeight = 150;
 
-    histogramData.forEach(binData => {
-        const totalHeight = (binData.total / results.length) * maxHeight;
-        const correctHeight = (binData.correct / results.length) * maxHeight;
-        const incorrectHeight = totalHeight - correctHeight;
+    histogramData.forEach((binData, index) => {
+        let scaledHeight;
+        if (document.getElementById("normalizeToggle").checked && binData.total > 0) {
+            scaledHeight = maxHeight; // Set each non-zero column's height to maxHeight
+        } else {
+            scaledHeight = combinedHeights[index] * scale;
+        }
+        
+        const correctFraction = binData.correct / binData.total;
+        const correctHeight = correctFraction * scaledHeight;
+        const incorrectHeight = scaledHeight - correctHeight;
 
         // White part
         const geometryWhite = new THREE.BoxGeometry(barWidth, incorrectHeight, 1);
@@ -387,7 +419,11 @@ function visualizeResults() {
 
         xOffset += barWidth;
     });
+    
+    // Clear the renderer's canvas
+    histogramRenderer.clear();
 
+    // Render the updated histogram scene
     histogramRenderer.render(histogramScene, histogramCamera);
 
     // Position the camera
@@ -442,8 +478,6 @@ document.getElementById("download").addEventListener("click", function() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
-    console.log("Results before exporting:", results);
 });
 
 document.getElementById("backToResults").addEventListener("click", function() {
@@ -558,8 +592,6 @@ function parseCSV(csvData) {
             });
         }
     }
-    
-    console.log("Loaded results:", results);
     
     visualizeResults(); // Visualize the loaded data
 }
