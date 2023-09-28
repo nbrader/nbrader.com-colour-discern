@@ -48,40 +48,59 @@
     </div>
     
     <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
-        <!-- 3D Visualization Controls and Canvas -->
-        <div id="visualizer3D" style="width: 70%; height: 4%;">
-            <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
-            <input type="checkbox" id="whiteLinesToggle" checked>
 
-            <label for="darkBlueLinesToggle">Show Dark Blue Lines for Distinguished Colors:</label>
-            <input type="checkbox" id="darkBlueLinesToggle" checked>
-            
-            <label for="lightPrevColsToggle">Show Previously Memorized Colors:</label>
-            <input type="checkbox" id="lightPrevColsToggle" checked>
-            
-            <label for="greyOutlinesToggle">Highlight Previously Memorized Colours:</label>
-            <input type="checkbox" id="greyOutlinesToggle">
-            
-            <label for="gridDotsToggle">Show 3D Grid of Colours:</label>
-            <input type="checkbox" id="gridDotsToggle">
-            
-            <label for="gridToggle">Show Zero Planes:</label>
-            <input type="checkbox" id="gridToggle" checked>
+        <!-- 3D Visualization Controls -->
+        <div id="visualizer3D" style="width: 100%; padding: 20px 0;">
+            <!-- Making each label-input pair a block-level element for vertical stacking -->
+            <div style="margin-bottom: 10px;">
+                <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
+                <input type="checkbox" id="whiteLinesToggle" checked>
+            </div>
 
-            <label for="normalizeToggle">Normalize Histogram:</label>
-            <input type="checkbox" id="normalizeToggle">
+            <div style="margin-bottom: 10px;">
+                <label for="darkBlueLinesToggle">Show Dark Blue Lines for Distinguished Colors:</label>
+                <input type="checkbox" id="darkBlueLinesToggle" checked>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="lightPrevColsToggle">Show Previously Memorized Colors:</label>
+                <input type="checkbox" id="lightPrevColsToggle" checked>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="greyOutlinesToggle">Highlight Previously Memorized Colours:</label>
+                <input type="checkbox" id="greyOutlinesToggle">
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="gridDotsToggle">Show 3D Grid of Colours:</label>
+                <input type="checkbox" id="gridDotsToggle">
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="gridToggle">Show Zero Planes:</label>
+                <input type="checkbox" id="gridToggle" checked>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="normalizeToggle">Normalize Histogram:</label>
+                <input type="checkbox" id="normalizeToggle">
+            </div>
+
             <!-- Canvas for 3D visualization will be appended here by THREE.js -->
         </div>
 
-        <!-- Moving the histogram below the 3D visualization controls -->
-        <div id="histogram2D" style="width:600px; height:200px; position: relative; background-color: #f5f5f5; margin-top: 5px; margin-left: 0;">
+        <!-- Histogram -->
+        <div id="histogram2D" style="width:600px; height:200px; position: relative; margin: 20px auto;">
             <h3 style="text-align: center; margin-bottom: 5px;">Color Discrimination Histogram</h3>
             <!-- Canvas for 2D histogram will be appended here by THREE.js -->
         </div>
 
-        <div>
+        <!-- Buttons -->
+        <div style="text-align: center;">
             <button id="download">Export CSV</button>
-            <button id="backToResults">Back</button>
+            <!-- Added a little margin for separation -->
+            <button id="backToResults" style="margin-left: 20px;">Back</button>
         </div>
     </div>
     

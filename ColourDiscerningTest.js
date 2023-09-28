@@ -375,8 +375,43 @@ function visualizeResults() {
     const barWidth = 15; // Increased width
 
     // Later, when you set the xOffset for histogram bars:
-    let xOffset = 0
+    let xOffset = 0;
 
+    // Find out the maximum bar height, to position squares right below
+    let maxBarHeight = 0;
+
+    histogramData.forEach((binData) => {
+        let scaledHeight;
+        if (document.getElementById("normalizeToggle").checked && binData.total > 0) {
+            scaledHeight = maxHeight;
+        } else {
+            scaledHeight = binData.total * scale;
+        }
+        
+        if (scaledHeight > maxBarHeight) {
+            maxBarHeight = scaledHeight;
+        }
+    });
+    
+    let squareYOffset = -2 * barWidth;
+    
+    let squareSize = barWidth;  // Assuming the squares are of the same width as bars
+    let yOffset = -20;  // This determines the vertical gap between histogram bars and squares.
+
+    // Create rows for squares
+    let whiteRow = document.createElement("div");
+    whiteRow.style.position = "absolute";
+    whiteRow.style.bottom = yOffset + "px";
+    whiteRow.style.left = "0";
+
+    let greyRow = document.createElement("div");
+    greyRow.style.position = "absolute";
+    greyRow.style.bottom = (yOffset - squareSize) + "px";  // Placed below the white squares
+    greyRow.style.left = "0";
+
+    document.getElementById("histogram2D").appendChild(whiteRow);
+    document.getElementById("histogram2D").appendChild(greyRow);
+    
     histogramData.forEach((binData, index) => {
         let scaledHeight;
         if (document.getElementById("normalizeToggle").checked && binData.total > 0) {
@@ -404,11 +439,41 @@ function visualizeResults() {
         barGrey.style.position = "absolute";
         barGrey.style.bottom = incorrectHeight + "px"; 
         barGrey.style.left = xOffset + "px";
-
+        
+        const histogramDiv = document.getElementById("histogram2D");
+        histogramDiv.style.height = (maxHeight + 3 * barWidth + 10) + "px"; // Adjusted to include 2 rows of squares and the gaps.
+        
         document.getElementById("histogram2D").appendChild(barWhite);
         document.getElementById("histogram2D").appendChild(barGrey);
-
+        
         xOffset += barWidth;
+    });
+    
+    histogramData.forEach((binData, index) => {
+        // Determine the grey value for the square
+        let binCenter = binSize * (index + 0.5);
+        let greyValue = 255 - Math.floor(255 * binCenter / maxDistance);
+
+        // Create white square for top row
+        const whiteSquare = document.createElement("div");
+        whiteSquare.style.width = barWidth + "px";
+        whiteSquare.style.height = barWidth + "px";
+        whiteSquare.style.backgroundColor = "#FFFFFF";
+        whiteSquare.style.position = "absolute";
+        whiteSquare.style.bottom = squareYOffset + "px"; 
+        whiteSquare.style.left = index * barWidth + "px";
+
+        // Create grey square for bottom row
+        const greySquare = document.createElement("div");
+        greySquare.style.width = barWidth + "px";
+        greySquare.style.height = barWidth + "px"; 
+        greySquare.style.backgroundColor = `rgb(${greyValue},${greyValue},${greyValue})`;
+        greySquare.style.position = "absolute";
+        greySquare.style.bottom = (squareYOffset + barWidth) + "px";
+        greySquare.style.left = index * barWidth + "px";
+
+        document.getElementById("histogram2D").appendChild(whiteSquare);
+        document.getElementById("histogram2D").appendChild(greySquare);
     });
 
     // Animation logic
