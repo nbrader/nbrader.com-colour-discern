@@ -219,23 +219,6 @@ document.getElementById("greyOutlinesToggle").addEventListener("change", visuali
 document.getElementById("gridToggle").addEventListener('change', visualizeResults);
 document.getElementById("normalizeToggle").addEventListener('change', visualizeResults);
 
-// Global Variables for 2D Histogram
-let histogramScene, histogramRenderer, histogramCamera;
-
-function setupHistogramRenderer() {
-    const width = 600; // or any desired width
-    const height = 200; // or any desired height
-
-    histogramScene = new THREE.Scene();
-    histogramRenderer = new THREE.WebGLRenderer();
-    histogramRenderer.setSize(width, height);
-    document.getElementById("histogram2D").appendChild(histogramRenderer.domElement);
-
-    // 2D camera (Orthographic camera)
-    histogramCamera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
-    histogramCamera.position.z = 10;
-}
-
 function visualizeResults() {
     // Clear previous items in the scene
     while(scene.children.length > 0){ 
@@ -344,8 +327,10 @@ function visualizeResults() {
         }
     }
     
-    // Clear the histogramScene
-    histogramScene.children.forEach(object => histogramScene.remove(object));
+    const histogramDiv = document.getElementById("histogram2D");
+    while (histogramDiv.lastChild && histogramDiv.lastChild.tagName !== 'H3' && histogramDiv.lastChild.tagName !== 'LABEL' && histogramDiv.lastChild.tagName !== 'INPUT') {
+        histogramDiv.removeChild(histogramDiv.lastChild);
+    }
     
     // Prepare the data for the histogram
     const binSize = 10;
@@ -365,7 +350,7 @@ function visualizeResults() {
     });
     
     // Desired maximum height for the histogram bars
-    const maxHeight = 150;
+    const maxHeight = 100;
 
     // Calculate combined heights for each bin
     const combinedHeights = histogramData.map(bin => bin.total);
@@ -385,10 +370,12 @@ function visualizeResults() {
     } else {
         scale = maxHeight / maxCombinedHeight;
     }
-
+    
     // Create and position histogram bars
-    const barWidth = 5;
-    let xOffset = -(barWidth * numBins) / 2;
+    const barWidth = 15; // Increased width
+
+    // Later, when you set the xOffset for histogram bars:
+    let xOffset = 0
 
     histogramData.forEach((binData, index) => {
         let scaledHeight;
@@ -402,32 +389,27 @@ function visualizeResults() {
         const correctHeight = correctFraction * scaledHeight;
         const incorrectHeight = scaledHeight - correctHeight;
 
-        // White part
-        const geometryWhite = new THREE.BoxGeometry(barWidth, incorrectHeight, 1);
-        const materialWhite = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const barWhite = new THREE.Mesh(geometryWhite, materialWhite);
-        barWhite.position.set(xOffset, incorrectHeight / 2, 0);
+        const barWhite = document.createElement("div");
+        barWhite.style.width = barWidth + "px";
+        barWhite.style.height = incorrectHeight + "px";
+        barWhite.style.backgroundColor = "#e6e6e6";  // Updated color
+        barWhite.style.position = "absolute";
+        barWhite.style.bottom = "0";
+        barWhite.style.left = xOffset + "px";
 
-        // Grey part (stacked on top)
-        const geometryGrey = new THREE.BoxGeometry(barWidth, correctHeight, 1);
-        const materialGrey = new THREE.MeshBasicMaterial({ color: 0x888888 });
-        const barGrey = new THREE.Mesh(geometryGrey, materialGrey);
-        barGrey.position.set(xOffset, incorrectHeight + (correctHeight / 2), 0);
+        const barGrey = document.createElement("div");
+        barGrey.style.width = barWidth + "px";
+        barGrey.style.height = correctHeight + "px";
+        barGrey.style.backgroundColor = "#333333";  // Updated color
+        barGrey.style.position = "absolute";
+        barGrey.style.bottom = incorrectHeight + "px"; 
+        barGrey.style.left = xOffset + "px";
 
-        histogramScene.add(barWhite);
-        histogramScene.add(barGrey);
+        document.getElementById("histogram2D").appendChild(barWhite);
+        document.getElementById("histogram2D").appendChild(barGrey);
 
         xOffset += barWidth;
     });
-    
-    // Clear the renderer's canvas
-    histogramRenderer.clear();
-
-    // Render the updated histogram scene
-    histogramRenderer.render(histogramScene, histogramCamera);
-
-    // Position the camera
-    camera.position.z = 500;
 
     // Animation logic
     function animate() {
@@ -437,9 +419,6 @@ function visualizeResults() {
 
     animate();
 }
-
-// Ensure to call this function at the start to setup the 2D renderer.
-setupHistogramRenderer();
 
 // Function to check if a color exists in an array
 function colorExistsInArray(color, colorArray) {

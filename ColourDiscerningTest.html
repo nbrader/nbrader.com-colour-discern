@@ -49,7 +49,7 @@
     
     <div id="resultsCanvas" style="display: none; width: 100vw; height: 100vh;">
         <!-- 3D Visualization Controls and Canvas -->
-        <div id="visualizer3D" style="width: 70%; height: 100%; float: left;">
+        <div id="visualizer3D" style="width: 70%; height: 4%;">
             <label for="whiteLinesToggle">Show White Lines for Confused Colors:</label>
             <input type="checkbox" id="whiteLinesToggle" checked>
 
@@ -68,20 +68,18 @@
             <label for="gridToggle">Show Zero Planes:</label>
             <input type="checkbox" id="gridToggle" checked>
 
+            <label for="normalizeToggle">Normalize Histogram:</label>
+            <input type="checkbox" id="normalizeToggle">
             <!-- Canvas for 3D visualization will be appended here by THREE.js -->
         </div>
 
-        It doesn't scale them. Also the label of the new toggle is on a white background so disappears.
-        <div id="histogram2D" style="width: 30%; height: 100%; float: left; background-color: #f6f6f6;">
-            <h3 style="text-align: center;">Color Discrimination Histogram</h3>
-            
-            <label for="normalizeToggle" style="color: #333;">Normalize Histogram:</label>
-            <input type="checkbox" id="normalizeToggle">
-
+        <!-- Moving the histogram below the 3D visualization controls -->
+        <div id="histogram2D" style="width:600px; height:200px; position: relative; background-color: #f5f5f5; margin-top: 5px; margin-left: 0;">
+            <h3 style="text-align: center; margin-bottom: 5px;">Color Discrimination Histogram</h3>
             <!-- Canvas for 2D histogram will be appended here by THREE.js -->
         </div>
 
-        <div style="clear: both;">
+        <div>
             <button id="download">Export CSV</button>
             <button id="backToResults">Back</button>
         </div>
