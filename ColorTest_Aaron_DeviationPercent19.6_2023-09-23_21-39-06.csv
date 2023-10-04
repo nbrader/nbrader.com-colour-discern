@@ -1,0 +1,8 @@
+Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct
+Aaron,19.6,27,236,181,20,255,186,a,true
+Aaron,19.6,15,211,162,34,233,130,a,true
+Aaron,19.6,132,34,147,92,84,160,a,true
+Aaron,19.6,200,216,228,169,238,187,b,true
+Aaron,19.6,224,114,4,197,163,0,a,true
+Aaron,19.6,115,67,38,87,103,42,b,true
+Aaron,19.6,76,109,149,107,111,175,a,true
