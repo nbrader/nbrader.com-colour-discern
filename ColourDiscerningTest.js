@@ -575,23 +575,9 @@ document.getElementById("backToResults").addEventListener("click", function() {
 
 // The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
 
-// The current code gave the following output:
-// Histogram totals: (20) [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-// ColourDiscerningTest.js:583 minBinIndex: 0, minBin: {correct: 0, total: 0}
-// ColourDiscerningTest.js:606 actualDistance: 12.68857754044952, resultingBin: 0
-// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 17, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-// ColourDiscerningTest.js:606 actualDistance: 188.01595676963166, resultingBin: 8
-// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-// ColourDiscerningTest.js:606 actualDistance: 92.80086206496145, resultingBin: 4
-// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 28, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-// ColourDiscerningTest.js:606 actualDistance: 268.62241157431373, resultingBin: 12
-
 // Modify the below code so that it does the following:
 // 1. Generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
-// 2. Find a random 3D vector which has a length within the minBin that isn't largeer than the RGB cube in any direction
+// 2. Find a random 3D vector which has a length within the minBin that isn't larger than the RGB cube in any direction
 // 3. Select the position of the first simply by finding the boundary cuboid of the points within the cube which when adding the direction vector would still be within the cube and then randomly selecting a point within that cuboid. Use the fact that the cuboid only holds validly distanced colours to avoid doing a loop where you check if they're in the RGB cube.
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
@@ -607,19 +593,38 @@ function setColors() {
     const chosenDistance = Math.random() * (maxDistance - minDistance) + minDistance;
 
     // Generate two colors that are `chosenDistance` apart
-    colorA = randomRgb();
-    let directionVector = randomDirectionVector(chosenDistance);
-    colorB = colorA.map((channel, index) => {
-        let newChannel = channel + directionVector[index];
-        return Math.min(255, Math.max(0, newChannel)); // Ensuring the color channel is in [0, 255]
-    });
+    let attempts = 0;
+    while(attempts < 1000) {  // Prevent infinite loops
+        colorA = randomRgb();
+        let directionVector = randomDirectionVector(chosenDistance);
 
-    const actualDistance = Math.sqrt(
-        (colorA[0] - colorB[0]) ** 2 +
-        (colorA[1] - colorB[1]) ** 2 +
-        (colorA[2] - colorB[2]) ** 2
-    );
-    console.log(`actualDistance: ${actualDistance}, resultingBin: ${Math.floor(actualDistance / binSize)}`);
+        // Validate the resulting colorB
+        colorB = colorA.map((channel, index) => {
+            let newChannel = channel + directionVector[index];
+            return Math.min(255, Math.max(0, newChannel)); // Ensuring the color channel is in [0, 255]
+        });
+        
+        // Check if colorB is within RGB space
+        if(colorB.every(channel => channel >= 0 && channel <= 255)) {
+            // Check if the actual distance between colors is within the desired bin
+            const actualDistance = Math.sqrt(
+                (colorA[0] - colorB[0]) ** 2 +
+                (colorA[1] - colorB[1]) ** 2 +
+                (colorA[2] - colorB[2]) ** 2
+            );
+
+            if(minDistance <= actualDistance && actualDistance < maxDistance) {
+                console.log(`actualDistance: ${actualDistance}, resultingBin: ${Math.floor(actualDistance / binSize)}`);
+                break; // Colors found, exit the loop
+            }
+        }
+        attempts++;
+    }
+
+    if(attempts === 1000) {
+        console.warn("Failed to find suitable colors after 1000 attempts.");
+        return;
+    }
     
     // Updating UI
     document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${Math.round(colorA[0])}, ${Math.round(colorA[1])}, ${Math.round(colorA[2])})`;
