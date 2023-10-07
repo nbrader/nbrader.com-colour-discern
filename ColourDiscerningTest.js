@@ -2,8 +2,50 @@ let colorA, colorB;
 let results = [];
 
 let name, deviation;
-
 let gridR, gridG, gridB;
+
+
+let numBins = 20; 
+const maxDistance = Math.sqrt(255**2 + 255**2 + 255**2);
+const binSize = maxDistance/numBins;
+
+function initializeHistogramData(numBins) {
+    const histogramData = new Array(numBins).fill(null).map(() => ({ correct: 0, total: 0 }));
+    return histogramData;
+}
+
+let histogramData = initializeHistogramData(numBins);
+
+function updateHistogramData(binSize) {
+    // Reset the histogramData
+    histogramData.forEach(bin => {
+        bin.correct = 0;
+        bin.total = 0;
+    });
+
+    results.forEach(res => {
+        const distance = Math.sqrt(
+            (res.aRed - res.bRed) ** 2 +
+            (res.aGreen - res.bGreen) ** 2 +
+            (res.aBlue - res.bBlue) ** 2
+        );
+        const bin = Math.min(histogramData.length - 1, Math.floor(distance / binSize));
+        histogramData[bin].total++;
+        if (res.isCorrect) histogramData[bin].correct++;
+    });
+}
+
+function updateHistogram(colorA, colorB, isCorrect) {
+    const distance = Math.sqrt(
+        (colorA[0] - colorB[0]) ** 2 +
+        (colorA[1] - colorB[1]) ** 2 +
+        (colorA[2] - colorB[2]) ** 2
+    );
+    const binIndex = Math.floor(distance / binSize);
+    
+    histogramData[binIndex].total += 1;
+    if (isCorrect) histogramData[binIndex].correct += 1;
+}
 
 function initGrids() {
     const gridSize = 256; // Assuming the grid spans the full color space
@@ -73,6 +115,9 @@ function startTest() {
     
     // Show the memorising screen
     document.getElementById("content").style.display = "block";
+    
+    // Assuming binSize is defined somewhere, if not, define it.
+    updateHistogramData(binSize); 
     setColors();
 }
 
@@ -145,6 +190,7 @@ function initThreeJS() {
 }
 
 initThreeJS();
+
 
 // Helper function: Convert HSV to RGB
 function hsvToRgb(h, s, v) {
@@ -333,11 +379,6 @@ function visualizeResults() {
     }
     
     // Prepare the data for the histogram
-    const binSize = 10;
-    const maxDistance = 441.673;  // Maximum distance in RGB space
-    const numBins = Math.ceil(maxDistance / binSize);
-    const histogramData = new Array(numBins).fill(0).map(() => ({ correct: 0, total: 0 }));
-
     results.forEach(res => {
         const distance = Math.sqrt(
             (res.aRed - res.bRed) ** 2 +
@@ -485,6 +526,7 @@ function visualizeResults() {
     animate();
 }
 
+
 // Function to check if a color exists in an array
 function colorExistsInArray(color, colorArray) {
     return colorArray.some(existingColor => arraysEqual(existingColor, color));
@@ -529,31 +571,81 @@ document.getElementById("backToResults").addEventListener("click", function() {
     document.getElementById("content").style.display = "block";
 });
 
+
+
+// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
+
+The current code gave the following output:
+Histogram totals: (20) [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ColourDiscerningTest.js:583 minBinIndex: 0, minBin: {correct: 0, total: 0}
+ColourDiscerningTest.js:606 actualDistance: 12.68857754044952, resultingBin: 0
+ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 17, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+ColourDiscerningTest.js:606 actualDistance: 188.01595676963166, resultingBin: 8
+ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+ColourDiscerningTest.js:606 actualDistance: 92.80086206496145, resultingBin: 4
+ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 28, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+ColourDiscerningTest.js:606 actualDistance: 268.62241157431373, resultingBin: 12
+
+// Modify the below code so that it does the following:
+// 1. Generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
+// 2. Find a random 3D vector which has a length within the minBin that isn't largeer than the RGB cube in any direction
+// 3. Select the position of the first simply by finding the boundary cuboid of the points within the cube which when adding the direction vector would still be within the cube and then randomly selecting a point within that cuboid. Use the fact that the cuboid only holds validly distanced colours to avoid doing a loop where you check if they're in the RGB cube.
+function setColors() {
+    console.log('Histogram totals:', histogramData.map(bin => bin.total));
+    
+    // Find the bin with the smallest height
+    const minBin = histogramData.reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
+    const minBinIndex = histogramData.indexOf(minBin);
+    console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
+
+    // Choose a random distance within the bin
+    const minDistance = minBinIndex * binSize;
+    const maxDistance = minDistance + binSize;
+    const chosenDistance = Math.random() * (maxDistance - minDistance) + minDistance;
+
+    // Generate two colors that are `chosenDistance` apart
+    colorA = randomRgb();
+    let directionVector = randomDirectionVector(chosenDistance);
+    colorB = colorA.map((channel, index) => {
+        let newChannel = channel + directionVector[index];
+        return Math.min(255, Math.max(0, newChannel)); // Ensuring the color channel is in [0, 255]
+    });
+
+    const actualDistance = Math.sqrt(
+        (colorA[0] - colorB[0]) ** 2 +
+        (colorA[1] - colorB[1]) ** 2 +
+        (colorA[2] - colorB[2]) ** 2
+    );
+    console.log(`actualDistance: ${actualDistance}, resultingBin: ${Math.floor(actualDistance / binSize)}`);
+    
+    // Updating UI
+    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${Math.round(colorA[0])}, ${Math.round(colorA[1])}, ${Math.round(colorA[2])})`;
+    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${Math.round(colorB[0])}, ${Math.round(colorB[1])}, ${Math.round(colorB[2])})`;
+}
+
 function randomRgb() {
     return [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
 }
 
-function setColors() {
-    colorA = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-    colorB = generateColorWithDeviation(colorA, deviation);
-
-    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
-    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
-}
-
-function generateColorWithDeviation(baseColor, actualDeviation) {
-    return baseColor.map(channel => {
-        let deviation = Math.floor(Math.random() * (actualDeviation + 1));
-        let adjustedChannel = (Math.random() > 0.5) ? channel + deviation : channel - deviation;
-        adjustedChannel = Math.max(0, Math.min(adjustedChannel, 255));
-        return adjustedChannel;
-    });
+function randomDirectionVector(length) {
+    let theta = Math.random() * 2 * Math.PI; 
+    let phi = Math.acos(2 * Math.random() - 1); 
+    return [
+        Math.round(length * Math.sin(phi) * Math.cos(theta)),
+        Math.round(length * Math.sin(phi) * Math.sin(theta)),
+        Math.round(length * Math.cos(phi))
+    ];
 }
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
     const isCorrect = (choice === "a" && arraysEqual(colorA, testColor)) || 
                       (choice === "b" && arraysEqual(colorB, testColor));
+    
+    updateHistogram(colorA, colorB, isCorrect);
 
     results.push({
         aRed: colorA[0],
