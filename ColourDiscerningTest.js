@@ -575,19 +575,19 @@ document.getElementById("backToResults").addEventListener("click", function() {
 
 // The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
 
-The current code gave the following output:
-Histogram totals: (20) [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-ColourDiscerningTest.js:583 minBinIndex: 0, minBin: {correct: 0, total: 0}
-ColourDiscerningTest.js:606 actualDistance: 12.68857754044952, resultingBin: 0
-ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 17, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-ColourDiscerningTest.js:606 actualDistance: 188.01595676963166, resultingBin: 8
-ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-ColourDiscerningTest.js:606 actualDistance: 92.80086206496145, resultingBin: 4
-ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 28, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
-ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
-ColourDiscerningTest.js:606 actualDistance: 268.62241157431373, resultingBin: 12
+// The current code gave the following output:
+// Histogram totals: (20) [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+// ColourDiscerningTest.js:583 minBinIndex: 0, minBin: {correct: 0, total: 0}
+// ColourDiscerningTest.js:606 actualDistance: 12.68857754044952, resultingBin: 0
+// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 17, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+// ColourDiscerningTest.js:606 actualDistance: 188.01595676963166, resultingBin: 8
+// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 27, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+// ColourDiscerningTest.js:606 actualDistance: 92.80086206496145, resultingBin: 4
+// ColourDiscerningTest.js:578 Histogram totals: (20) [39, 115, 121, 39, 28, 30, 21, 13, 18, 6, 6, 6, 4, 1, 0, 0, 0, 0, 0, 0]
+// ColourDiscerningTest.js:583 minBinIndex: 14, minBin: {correct: 0, total: 0}
+// ColourDiscerningTest.js:606 actualDistance: 268.62241157431373, resultingBin: 12
 
 // Modify the below code so that it does the following:
 // 1. Generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
