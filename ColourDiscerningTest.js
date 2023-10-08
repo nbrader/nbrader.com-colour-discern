@@ -1,3 +1,5 @@
+// 2023-10-08 PLEASE NOTE: I've just now made the deviation field not do anything and instead made it pick colour pairs of a distance that hasn't come up often in the histogram. To do: Make it a setting you can pick at the start for whether to use one behaviour or the other. Also To do: Make this new colour picking method not sometimes take ages to calculate...
+
 let colorA, colorB;
 let results = [];
 
