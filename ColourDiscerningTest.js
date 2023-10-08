@@ -575,74 +575,72 @@ document.getElementById("backToResults").addEventListener("click", function() {
 
 // The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
 
-// Modify the below code so that it does the following:
-// 1. Generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
-// 2. Find a random 3D vector which has a length within the minBin that isn't larger than the RGB cube in any direction
-// 3. Select the position of the first simply by finding the boundary cuboid of the points within the cube which when adding the direction vector would still be within the cube and then randomly selecting a point within that cuboid. Use the fact that the cuboid only holds validly distanced colours to avoid doing a loop where you check if they're in the RGB cube.
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
     
-    // Find the bin with the smallest height
+    // 1. Find the bin with the smallest height
     const minBin = histogramData.reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
     const minBinIndex = histogramData.indexOf(minBin);
     console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
-
-    // Choose a random distance within the bin
+    
+    // 2. Choose a random distance within the bin
     const minDistance = minBinIndex * binSize;
     const maxDistance = minDistance + binSize;
     const chosenDistance = Math.random() * (maxDistance - minDistance) + minDistance;
-
-    // Generate two colors that are `chosenDistance` apart
+    
+    // 3. Generate two colors that are `chosenDistance` apart
     let attempts = 0;
-    while(attempts < 1000) {  // Prevent infinite loops
+    while(true) {
+        // Select a random colorA
         colorA = randomRgb();
-        let directionVector = randomDirectionVector(chosenDistance);
-
-        // Validate the resulting colorB
-        colorB = colorA.map((channel, index) => {
-            let newChannel = channel + directionVector[index];
-            return Math.min(255, Math.max(0, newChannel)); // Ensuring the color channel is in [0, 255]
-        });
         
-        // Check if colorB is within RGB space
+        // Select a random directionVector with length = chosenDistance
+        const directionVector = randomDirectionVector(chosenDistance);
+        
+        // Check if the resulting colorB is within the RGB space
+        colorB = colorA.map((channel, index) => channel + directionVector[index]).map(Math.floor);
         if(colorB.every(channel => channel >= 0 && channel <= 255)) {
             // Check if the actual distance between colors is within the desired bin
-            const actualDistance = Math.sqrt(
-                (colorA[0] - colorB[0]) ** 2 +
-                (colorA[1] - colorB[1]) ** 2 +
-                (colorA[2] - colorB[2]) ** 2
-            );
-
+            const actualDistance = distanceBetween(colorA, colorB);
             if(minDistance <= actualDistance && actualDistance < maxDistance) {
                 console.log(`actualDistance: ${actualDistance}, resultingBin: ${Math.floor(actualDistance / binSize)}`);
-                break; // Colors found, exit the loop
+                updateUI(colorA, colorB);
+                return; // Colors found, exit the function
             }
         }
         attempts++;
     }
 
-    if(attempts === 1000) {
-        console.warn("Failed to find suitable colors after 1000 attempts.");
-        return;
-    }
-    
-    // Updating UI
-    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${Math.round(colorA[0])}, ${Math.round(colorA[1])}, ${Math.round(colorA[2])})`;
-    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${Math.round(colorB[0])}, ${Math.round(colorB[1])}, ${Math.round(colorB[2])})`;
+    console.warn("Failed to find suitable colors after 1000 attempts.");
 }
 
 function randomRgb() {
-    return [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+    return [Math.random() * 256, Math.random() * 256, Math.random() * 256].map(Math.floor);
 }
 
 function randomDirectionVector(length) {
-    let theta = Math.random() * 2 * Math.PI; 
-    let phi = Math.acos(2 * Math.random() - 1); 
-    return [
-        Math.round(length * Math.sin(phi) * Math.cos(theta)),
-        Math.round(length * Math.sin(phi) * Math.sin(theta)),
-        Math.round(length * Math.cos(phi))
-    ];
+    // Generate a random 3D unit vector
+    const theta = Math.random() * 2 * Math.PI;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const x = Math.sin(phi) * Math.cos(theta);
+    const y = Math.sin(phi) * Math.sin(theta);
+    const z = Math.cos(phi);
+    
+    // Scale the vector to the desired length
+    return [x * length, y * length, z * length];
+}
+
+function distanceBetween(color1, color2) {
+    return Math.sqrt(
+        Math.pow(color1[0] - color2[0], 2) +
+        Math.pow(color1[1] - color2[1], 2) +
+        Math.pow(color1[2] - color2[2], 2)
+    );
+}
+
+function updateUI(colorA, colorB) {
+    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
+    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
 }
 
 function checkChoice(choice) {
