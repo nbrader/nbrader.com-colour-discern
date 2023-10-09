@@ -380,18 +380,6 @@ function visualizeResults() {
         histogramDiv.removeChild(histogramDiv.lastChild);
     }
     
-    // Prepare the data for the histogram
-    results.forEach(res => {
-        const distance = Math.sqrt(
-            (res.aRed - res.bRed) ** 2 +
-            (res.aGreen - res.bGreen) ** 2 +
-            (res.aBlue - res.bBlue) ** 2
-        );
-        const bin = Math.floor(distance / binSize);
-        histogramData[bin].total++;
-        if (res.isCorrect) histogramData[bin].correct++;
-    });
-    
     // Desired maximum height for the histogram bars
     const maxHeight = 100;
 
