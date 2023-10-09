@@ -574,17 +574,15 @@ document.getElementById("backToResults").addEventListener("click", function() {
 });
 
 
-
-// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of a histogram.
-
+// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of the first 9 bins of the histogram.
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
-    
-    // 1. Find the bin with the smallest height
-    const minBin = histogramData.reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
+
+    // 1. Find the bin with the smallest height among the first 9 bins
+    const minBin = histogramData.slice(0, 9).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
     const minBinIndex = histogramData.indexOf(minBin);
     console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
-    
+
     // 2. Choose a random distance within the bin
     const minDistance = minBinIndex * binSize;
     const maxDistance = minDistance + binSize;
@@ -592,20 +590,21 @@ function setColors() {
     
     // 3. Generate two colors that are `chosenDistance` apart
     let attempts = 0;
-    while(true) {
+    while(attempts < 1000) {  // limiting the while loop to 1000 iterations to avoid potential infinite loops
         // Select a random colorA
         colorA = randomRgb();
         
-        // Select a random directionVector with length = chosenDistance
+        // Ensure randomDirectionVector and chosenDistance are defined elsewhere in your code
         const directionVector = randomDirectionVector(chosenDistance);
         
         // Check if the resulting colorB is within the RGB space
         colorB = colorA.map((channel, index) => channel + directionVector[index]).map(Math.floor);
         if(colorB.every(channel => channel >= 0 && channel <= 255)) {
-            // Check if the actual distance between colors is within the desired bin
+            // Ensure distanceBetween is defined elsewhere in your code
             const actualDistance = distanceBetween(colorA, colorB);
             if(minDistance <= actualDistance && actualDistance < maxDistance) {
                 console.log(`actualDistance: ${actualDistance}, resultingBin: ${Math.floor(actualDistance / binSize)}`);
+                // Ensure updateUI is defined elsewhere in your code
                 updateUI(colorA, colorB);
                 return; // Colors found, exit the function
             }
