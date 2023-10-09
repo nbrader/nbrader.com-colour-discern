@@ -7,7 +7,7 @@ let name, deviation;
 let gridR, gridG, gridB;
 
 
-let numBins = 20; 
+let numBins = 60; 
 const maxDistance = Math.sqrt(255**2 + 255**2 + 255**2);
 const binSize = maxDistance/numBins;
 
