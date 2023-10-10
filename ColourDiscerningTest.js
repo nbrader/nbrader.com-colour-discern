@@ -658,19 +658,19 @@ function getClosestHueName(hue) {
     return name;
 }
 
-// Function to calculate hue, saturation, and value from RGB
-function rgbToHsv(rgb) {
-    let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+// Function to calculate HSL from RGB
+function rgbToHsl(r, g, b) {
+    r /= 255, g /= 255, b /= 255;
+
     let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, v = max;
+    let h, s, l = (max + min) / 2;
 
-    let d = max - min;
-    s = max === 0 ? 0 : d / max;
-
-    if (max === min) {
-        h = 0; // achromatic
+    if(max === min){
+        h = s = 0;  // achromatic
     } else {
-        switch (max) {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max){
             case r: h = (g - b) / d + (g < b ? 6 : 0); break;
             case g: h = (b - r) / d + 2; break;
             case b: h = (r - g) / d + 4; break;
@@ -678,31 +678,28 @@ function rgbToHsv(rgb) {
         h /= 6;
     }
 
-    return [h * 360, s * 100, v * 100];
+    return [h * 360, s * 100, l * 100];
 }
 
-function getAdjective(value, high, medium, low) {
-    if (value > 66) return high;
-    if (value < 33) return low;
-    return medium;
+function getLightnessAdjective(lightness, saturation) {
+    if (lightness > 60) return 'Light';
+    if (lightness < 40) return 'Dark';
+    if (saturation < 25 && lightness > 40 && lightness < 60) return 'Dull';
+    return '';
 }
 
 function updateUI(colorA, colorB) {
-    const [hueA, satA, valA] = rgbToHsv(colorA);
-    const [hueB, satB, valB] = rgbToHsv(colorB);
+    const [hA, sA, lA] = rgbToHsl(colorA[0], colorA[1], colorA[2]);
+    const [hB, sB, lB] = rgbToHsl(colorB[0], colorB[1], colorB[2]);
 
-    const hueNameA = getClosestHueName(hueA);
-    const hueNameB = getClosestHueName(hueB);
+    const hueNameA = getClosestHueName(hA);
+    const hueNameB = getClosestHueName(hB);
 
-    const satAdjectiveA = getAdjective(satA, 'Vivid', '', 'Dull');
-    const satAdjectiveB = getAdjective(satB, 'Vivid', '', 'Dull');
+    const adjectiveA = getLightnessAdjective(lA, sA);
+    const adjectiveB = getLightnessAdjective(lB, sB);
 
-    const valAdjectiveA = getAdjective(valA, 'Light', '', 'Dark');
-    const valAdjectiveB = getAdjective(valB, 'Light', '', 'Dark');
-
-    // Constructing the descriptions with a space only if there is an adjective
-    const descriptionA = `${satAdjectiveA}${satAdjectiveA ? ' ' : ''}${valAdjectiveA}${valAdjectiveA ? ' ' : ''}${hueNameA}`;
-    const descriptionB = `${satAdjectiveB}${satAdjectiveB ? ' ' : ''}${valAdjectiveB}${valAdjectiveB ? ' ' : ''}${hueNameB}`;
+    const descriptionA = adjectiveA ? `${adjectiveA} ${hueNameA}` : hueNameA;
+    const descriptionB = adjectiveB ? `${adjectiveB} ${hueNameB}` : hueNameB;
 
     const elementA = document.getElementById("a");
     const elementB = document.getElementById("b");
@@ -713,6 +710,7 @@ function updateUI(colorA, colorB) {
     elementB.querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
     elementB.querySelector(".color-name").innerText = descriptionB;
 }
+
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
