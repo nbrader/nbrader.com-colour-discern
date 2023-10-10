@@ -562,12 +562,12 @@ document.getElementById("backToResults").addEventListener("click", function() {
 });
 
 
-// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of the first 9 bins of the histogram.
+// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of the first 30 bins of the histogram.
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
 
     // 1. Find the bin with the smallest height among the first 9 bins
-    const minBin = histogramData.slice(0, 9).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
+    const minBin = histogramData.slice(0, 30).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
     const minBinIndex = histogramData.indexOf(minBin);
     console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
 
