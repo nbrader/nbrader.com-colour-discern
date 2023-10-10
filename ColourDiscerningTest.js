@@ -627,10 +627,74 @@ function distanceBetween(color1, color2) {
     );
 }
 
-function updateUI(colorA, colorB) {
-    document.getElementById("a").querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
-    document.getElementById("b").querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
+// Function to calculate the hue of a color
+function getHue(rgb) {
+    let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let hue;
+
+    if (max == min) {
+        hue = 0; // achromatic
+    } else {
+        let d = max - min;
+        switch(max) {
+            case r: hue = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: hue = (b - r) / d + 2; break;
+            case b: hue = (r - g) / d + 4; break;
+        }
+        hue /= 6;
+    }
+    return hue * 360; // return hue in degrees
 }
+
+// Function to get the name of the closest hue
+function getClosestHueName(hue) {
+    const hues = {
+        Red: 0,
+        Orange: 30,
+        Yellow: 60,
+        Chartreuse: 90,
+        Green: 120,
+        SpringGreen: 150,
+        Cyan: 180,
+        Azure: 210,
+        Blue: 240,
+        Violet: 270,
+        Magenta: 300,
+        Rose: 330
+    };
+
+    let name = 'Red';
+    let minDifference = Math.abs(hue - hues.Red);
+
+    for (let hueName in hues) {
+        let difference = Math.abs(hue - hues[hueName]);
+        if (difference < minDifference) {
+            minDifference = difference;
+            name = hueName;
+        }
+    }
+
+    return name;
+}
+
+function updateUI(colorA, colorB) {
+    const hueA = getHue(colorA);
+    const hueB = getHue(colorB);
+
+    const hueNameA = getClosestHueName(hueA);
+    const hueNameB = getClosestHueName(hueB);
+
+    const elementA = document.getElementById("a");
+    const elementB = document.getElementById("b");
+
+    elementA.querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
+    elementA.querySelector(".hue-name").innerText = hueNameA;
+
+    elementB.querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
+    elementB.querySelector(".hue-name").innerText = hueNameB;
+}
+
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
