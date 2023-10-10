@@ -688,15 +688,46 @@ function getLightnessAdjective(lightness, saturation) {
     return '';
 }
 
+// Function to find the next hue name in the color wheel
+function getNextHueName(hue, referenceHue) {
+    const hues = [
+        'Red', 'Orange', 'Yellow', 'Chartreuse', 'Green', 'SpringGreen',
+        'Cyan', 'Azure', 'Blue', 'Violet', 'Magenta', 'Rose', 'Red'  // Red is repeated to loop back
+    ];
+    const hueValues = {
+        Red: 0, Orange: 30, Yellow: 60, Chartreuse: 90, Green: 120, SpringGreen: 150,
+        Cyan: 180, Azure: 210, Blue: 240, Violet: 270, Magenta: 300, Rose: 330
+    };
+
+    let closestHueName = getClosestHueName(hue);
+    let referenceHueName = getClosestHueName(referenceHue);
+    let currentIndex = hues.indexOf(closestHueName);
+    let referenceIndex = hues.indexOf(referenceHueName);
+
+    if (Math.abs(hue - hueValues[referenceHueName]) < Math.abs(hue - hueValues[hues[(referenceIndex + 1) % 12]])) {
+        return hues[(currentIndex + 1) % 12];
+    } else {
+        return hues[(currentIndex + 11) % 12];  // Adding 11 to loop backwards
+    }
+}
+
 function updateUI(colorA, colorB) {
     const [hA, sA, lA] = rgbToHsl(colorA[0], colorA[1], colorA[2]);
     const [hB, sB, lB] = rgbToHsl(colorB[0], colorB[1], colorB[2]);
 
     const hueNameA = getClosestHueName(hA);
-    const hueNameB = getClosestHueName(hB);
+    let hueNameB = getClosestHueName(hB);
 
     const adjectiveA = getLightnessAdjective(lA, sA);
-    const adjectiveB = getLightnessAdjective(lB, sB);
+    let adjectiveB = getLightnessAdjective(lB, sB);
+
+    // Determine relative descriptions for colorB
+    if (adjectiveA === adjectiveB && hueNameA === hueNameB) {
+        adjectiveB = lB > lA ? 'Lighter' : 'Darker';
+        hueNameB = getNextHueName(hB, hA);
+    } else {
+        adjectiveB = sB > sA ? 'More Vivid' : 'Duller';
+    }
 
     const descriptionA = adjectiveA ? `${adjectiveA} ${hueNameA}` : hueNameA;
     const descriptionB = adjectiveB ? `${adjectiveB} ${hueNameB}` : hueNameB;
@@ -710,7 +741,6 @@ function updateUI(colorA, colorB) {
     elementB.querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
     elementB.querySelector(".color").title = descriptionB;
 }
-
 
 function checkChoice(choice) {
     const testColor = document.getElementById("testColor").chosenColor;
