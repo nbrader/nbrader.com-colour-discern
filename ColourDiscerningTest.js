@@ -705,10 +705,10 @@ function updateUI(colorA, colorB) {
     const elementB = document.getElementById("b");
 
     elementA.querySelector(".color").style.backgroundColor = `rgb(${colorA[0]}, ${colorA[1]}, ${colorA[2]})`;
-    elementA.querySelector(".color-name").innerText = descriptionA;
+    elementA.querySelector(".color").title = descriptionA;
 
     elementB.querySelector(".color").style.backgroundColor = `rgb(${colorB[0]}, ${colorB[1]}, ${colorB[2]})`;
-    elementB.querySelector(".color-name").innerText = descriptionB;
+    elementB.querySelector(".color").title = descriptionB;
 }
 
 

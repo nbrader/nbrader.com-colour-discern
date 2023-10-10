@@ -10,12 +10,6 @@ body {
     padding: 0;
 }
 
-.color-name {
-    color: white;
-    font-size: 16px;
-    visibility: visible;
-}
-
 .color-box {
     display: flex;
     flex-direction: column;
