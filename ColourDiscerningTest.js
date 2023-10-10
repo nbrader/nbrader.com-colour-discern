@@ -688,27 +688,41 @@ function getLightnessAdjective(lightness, saturation) {
     return '';
 }
 
-// Function to find the next hue name in the color wheel
 function getNextHueName(hue, referenceHue) {
-    const hues = [
-        'Red', 'Orange', 'Yellow', 'Chartreuse', 'Green', 'SpringGreen',
-        'Cyan', 'Azure', 'Blue', 'Violet', 'Magenta', 'Rose', 'Red'  // Red is repeated to loop back
-    ];
-    const hueValues = {
-        Red: 0, Orange: 30, Yellow: 60, Chartreuse: 90, Green: 120, SpringGreen: 150,
-        Cyan: 180, Azure: 210, Blue: 240, Violet: 270, Magenta: 300, Rose: 330
+    const hues = {
+        Red: 0,
+        Orange: 30,
+        Yellow: 60,
+        Chartreuse: 90,
+        Green: 120,
+        SpringGreen: 150,
+        Cyan: 180,
+        Azure: 210,
+        Blue: 240,
+        Violet: 270,
+        Magenta: 300,
+        Rose: 330
     };
 
-    let closestHueName = getClosestHueName(hue);
-    let referenceHueName = getClosestHueName(referenceHue);
-    let currentIndex = hues.indexOf(closestHueName);
-    let referenceIndex = hues.indexOf(referenceHueName);
+    const hueNames = Object.keys(hues);
+    const referenceHueName = getClosestHueName(referenceHue);
+    const referenceIndex = hueNames.indexOf(referenceHueName);
 
-    if (Math.abs(hue - hueValues[referenceHueName]) < Math.abs(hue - hueValues[hues[(referenceIndex + 1) % 12]])) {
-        return hues[(currentIndex + 1) % 12];
-    } else {
-        return hues[(currentIndex + 11) % 12];  // Adding 11 to loop backwards
-    }
+    // Calculate the hue difference accounting for wrap-around at 0/360
+    const hueDifference = ((hue - referenceHue + 180 + 360) % 360) - 180;
+
+    // Determine the direction to the next hue name
+    const direction = hueDifference > 0 ? 1 : -1;
+
+    // Get the next hue name in the specified direction
+    const nextIndex = (referenceIndex + direction + hueNames.length) % hueNames.length;
+    return hueNames[nextIndex];
+}
+
+function getDifferenceDescription(valueA, valueB, high, low) {
+    if (valueA > valueB) return low;
+    if (valueA < valueB) return high;
+    return '';
 }
 
 function updateUI(colorA, colorB) {
@@ -721,16 +735,17 @@ function updateUI(colorA, colorB) {
     const adjectiveA = getLightnessAdjective(lA, sA);
     let adjectiveB = getLightnessAdjective(lB, sB);
 
-    // Determine relative descriptions for colorB
-    if (adjectiveA === adjectiveB && hueNameA === hueNameB) {
-        adjectiveB = lB > lA ? 'Lighter' : 'Darker';
-        hueNameB = getNextHueName(hB, hA);
-    } else {
-        adjectiveB = sB > sA ? 'More Vivid' : 'Duller';
-    }
+    let descriptionA = adjectiveA ? `${adjectiveA} ${hueNameA}` : hueNameA;
+    let descriptionB = adjectiveB ? `${adjectiveB} ${hueNameB}` : hueNameB;
 
-    const descriptionA = adjectiveA ? `${adjectiveA} ${hueNameA}` : hueNameA;
-    const descriptionB = adjectiveB ? `${adjectiveB} ${hueNameB}` : hueNameB;
+    // Check if descriptions would have been the same
+    if (descriptionA === descriptionB) {
+        const lightnessDesc = getDifferenceDescription(lA, lB, 'Lighter', 'Darker');
+        const saturationDesc = getDifferenceDescription(sA, sB, 'More Vivid', 'Duller');
+        nextClosestHueNameB = getNextHueName(hB, hA);
+
+        descriptionB = `${lightnessDesc} ${saturationDesc} More ${nextClosestHueNameB} ${hueNameB}`.trim();
+    }
 
     const elementA = document.getElementById("a");
     const elementB = document.getElementById("b");
