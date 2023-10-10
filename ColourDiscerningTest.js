@@ -619,6 +619,7 @@ function randomDirectionVector(length) {
     return [x * length, y * length, z * length];
 }
 
+// Modify the following code so that if the hues are identical, it omits the part about the hue being more one hue or the other
 function distanceBetween(color1, color2) {
     return Math.sqrt(
         Math.pow(color1[0] - color2[0], 2) +
@@ -627,7 +628,6 @@ function distanceBetween(color1, color2) {
     );
 }
 
-// Function to get the name of the closest hue
 function getClosestHueName(hue) {
     const hues = {
         Red: 0,
@@ -658,7 +658,6 @@ function getClosestHueName(hue) {
     return name;
 }
 
-// Function to calculate HSL from RGB
 function rgbToHsl(r, g, b) {
     r /= 255, g /= 255, b /= 255;
 
@@ -684,7 +683,7 @@ function rgbToHsl(r, g, b) {
 function getLightnessAdjective(lightness, saturation) {
     if (lightness > 60) return 'Light';
     if (lightness < 40) return 'Dark';
-    if (saturation < 25 && lightness > 40 && lightness < 60) return 'Dull';
+    if (saturation < 50) return 'Dull';
     return '';
 }
 
@@ -725,6 +724,43 @@ function getDifferenceDescription(valueA, valueB, high, low) {
     return '';
 }
 
+function getCircularDistance(value1, value2, max) {
+    const delta = Math.abs(value1 - value2) % max;
+    return Math.min(delta, max - delta);
+}
+
+function getNextHueName(hue, referenceHue) {
+    const hues = {
+        Red: 0,
+        Orange: 30,
+        Yellow: 60,
+        Chartreuse: 90,
+        Green: 120,
+        SpringGreen: 150,
+        Cyan: 180,
+        Azure: 210,
+        Blue: 240,
+        Violet: 270,
+        Magenta: 300,
+        Rose: 330
+    };
+    
+    const hueNames = Object.keys(hues);
+    const referenceHueName = getClosestHueName(referenceHue);
+    const referenceIndex = hueNames.indexOf(referenceHueName);
+    
+    const nextHueIndex = (referenceIndex + 1) % hueNames.length;
+    const prevHueIndex = (referenceIndex - 1) % hueNames.length;
+    
+    const nextHueName = hueNames[nextHueIndex];
+    const prevHueName = hueNames[prevHueIndex];
+    
+    const distanceToNextHue = getCircularDistance(hue, hues[nextHueName], 360);
+    const distanceToPrevHue = getCircularDistance(hue, hues[prevHueName], 360);
+    
+    return distanceToNextHue < distanceToPrevHue ? nextHueName : prevHueName;
+}
+
 function updateUI(colorA, colorB) {
     const [hA, sA, lA] = rgbToHsl(colorA[0], colorA[1], colorA[2]);
     const [hB, sB, lB] = rgbToHsl(colorB[0], colorB[1], colorB[2]);
@@ -742,9 +778,16 @@ function updateUI(colorA, colorB) {
     if (descriptionA === descriptionB) {
         const lightnessDesc = getDifferenceDescription(lA, lB, 'Lighter', 'Darker');
         const saturationDesc = getDifferenceDescription(sA, sB, 'More Vivid', 'Duller');
-        nextClosestHueNameB = getNextHueName(hB, hA);
+        let hueDifferenceDesc = '';
 
-        descriptionB = `${lightnessDesc} ${saturationDesc} More ${nextClosestHueNameB} ${hueNameB}`.trim();
+        // If hues are not identical, determine the hue difference description
+        if (Math.abs(hA - hB) > 0.5 || Math.abs(hA - hB) < 359.5) {  // Tolerance to account for minor differences
+            const nextClosestHueNameB = getNextHueName(hB, hA);
+            hueDifferenceDesc = `More ${nextClosestHueNameB}`;
+        }
+
+        // Construct descriptionB without extra spaces
+        descriptionB = [lightnessDesc, saturationDesc, hueDifferenceDesc, hueNameB].filter(Boolean).join(' ');
     }
 
     const elementA = document.getElementById("a");
