@@ -692,7 +692,7 @@ function getNextHueName(hue, referenceHue) {
         Red: 0,
         Orange: 30,
         Yellow: 60,
-        Chartreuse: 90,
+        YellowGreen: 90,
         Green: 120,
         SpringGreen: 150,
         Cyan: 180,
