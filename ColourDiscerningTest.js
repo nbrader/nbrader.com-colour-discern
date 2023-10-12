@@ -566,8 +566,8 @@ document.getElementById("backToResults").addEventListener("click", function() {
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
 
-    // 1. Find the bin with the smallest height among the first 9 bins
-    const minBin = histogramData.slice(0, 30).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
+    // 1. Find the bin with the smallest height among the first 15 bins
+    const minBin = histogramData.slice(0, 15).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
     const minBinIndex = histogramData.indexOf(minBin);
     console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
 
