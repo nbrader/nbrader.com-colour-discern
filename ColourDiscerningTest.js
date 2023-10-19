@@ -3,7 +3,7 @@
 let colorA, colorB;
 let results = [];
 
-let name, deviation;
+let name, histogramBinsToFill;
 let gridR, gridG, gridB;
 
 
@@ -102,15 +102,11 @@ function startTest() {
         return;
     }
     
-    const deviationPercent = document.getElementById("deviationPercent").value;
-    deviation = (deviationPercent / 100) * 255;
+    histogramBinsToFill = document.getElementById("histogramBinsToFill").value;
 
-    // Disable the deviation percent input
-    document.getElementById("deviationPercent").disabled = true;
-
-    // Disable name and deviation inputs
+    // Disable name and histogramBinsToFill inputs
     document.getElementById("name").disabled = true;
-    document.getElementById("deviationPercent").disabled = true;
+    document.getElementById("histogramBinsToFill").disabled = true;
 
     // Hide the instructions
     document.getElementById("instructions").style.display = "none";
@@ -538,11 +534,11 @@ document.getElementById("download").addEventListener("click", function() {
     const second = String(now.getSeconds()).padStart(2, '0');
     
     const formattedDate = `${year}-${month}-${day}_${hour}-${minute}-${second}`;
-    const filename = `ColorTest_${name}_DeviationPercent${deviationPercent.value}_${formattedDate}.csv`;
+    const filename = `ColorTest_${name}__${formattedDate}.csv`;
 
-    let csv = `Name,Deviation Percent,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
+    let csv = `Name,A Red,A Green,A Blue,B Red,B Green,B Blue,Choice,Is Correct\n`;
     results.forEach(res => {
-        csv += `${res.name},${res.deviationPercent},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
+        csv += `${res.name},${res.aRed},${res.aGreen},${res.aBlue},${res.bRed},${res.bGreen},${res.bBlue},${res.choice},${res.isCorrect}\n`;
     });
     
     const blob = new Blob([csv], {type: "text/csv"});
@@ -562,12 +558,12 @@ document.getElementById("backToResults").addEventListener("click", function() {
 });
 
 
-// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of the first 30 bins of the histogram.
+// The task is to generate two colours both within the RGB cube which are a distance apart which falls into the least populated bin of the first bins of the histogram.
 function setColors() {
     console.log('Histogram totals:', histogramData.map(bin => bin.total));
 
-    // 1. Find the bin with the smallest height among the first 15 bins
-    const minBin = histogramData.slice(0, 15).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
+    // 1. Find the bin with the smallest height among the first histogramBinsToFill bins
+    const minBin = histogramData.slice(0, histogramBinsToFill).reduce((min, bin) => (bin.total < min.total) ? bin : min, {total: Infinity});
     const minBinIndex = histogramData.indexOf(minBin);
     console.log(`minBinIndex: ${minBinIndex}, minBin:`, minBin);
 
@@ -816,8 +812,7 @@ function checkChoice(choice) {
         bBlue: colorB[2],
         choice: choice,
         isCorrect: isCorrect,
-        name: name,
-        deviationPercent: deviationPercent.value
+        name: name
     });
     
     extractMemorizedColors();
@@ -864,9 +859,6 @@ function parseCSV(csvData) {
 
     if (rows.length > 1) {
         const cells = rows[1].split(",");
-        // Use the first row values to set the initial name and deviation
-        initialName = cells[0];
-        initialDeviation = cells[1];
     }
 
     // Start from 1 to skip the header row
@@ -883,8 +875,7 @@ function parseCSV(csvData) {
                 bBlue: parseInt(cells[7]),
                 choice: cells[8],
                 isCorrect: cells[9].trim() === "true" || cells[9].trim() === "TRUE",
-                name: cells[0],
-                deviationPercent: parseFloat(cells[1])
+                name: cells[0]
             });
         }
     }
