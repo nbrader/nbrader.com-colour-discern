@@ -857,27 +857,45 @@ function parseCSV(csvData) {
     const rows = csvData.split("\n");
     results = []; // Clear existing results
 
-    if (rows.length > 1) {
-        const cells = rows[1].split(",");
-    }
-
-    // Start from 1 to skip the header row
-    for(let i = 1; i < rows.length; i++) {
-        const cells = rows[i].split(",");
-        
-        if(cells.length > 1) { // Check to prevent processing empty lines
-            results.push({
-                aRed: parseInt(cells[2]),
-                aGreen: parseInt(cells[3]),
-                aBlue: parseInt(cells[4]),
-                bRed: parseInt(cells[5]),
-                bGreen: parseInt(cells[6]),
-                bBlue: parseInt(cells[7]),
-                choice: cells[8],
-                isCorrect: cells[9].trim() === "true" || cells[9].trim() === "TRUE",
-                name: cells[0]
-            });
+    for (let i = 1; i < rows.length; i++) {
+        if (!rows[i].trim()) {
+            // Skipping empty line
+            continue;
         }
+
+        const cells = rows[i].split(",");
+
+        if (cells.length !== 9) {
+            // Skipping invalid or incomplete line
+            continue;
+        }
+
+        // Parsing and validating color values
+        const aRed = parseInt(cells[1], 10);
+        const aGreen = parseInt(cells[2], 10);
+        const aBlue = parseInt(cells[3], 10);
+        const bRed = parseInt(cells[4], 10);
+        const bGreen = parseInt(cells[5], 10);
+        const bBlue = parseInt(cells[6], 10);
+
+        if (isNaN(aRed) || isNaN(aGreen) || isNaN(aBlue) ||
+            isNaN(bRed) || isNaN(bGreen) || isNaN(bBlue)) {
+            // Invalid color values, skipping line
+            continue;
+        }
+
+        // Adding parsed data to results array
+        results.push({
+            name: cells[0].trim(),
+            aRed: aRed,
+            aGreen: aGreen,
+            aBlue: aBlue,
+            bRed: bRed,
+            bGreen: bGreen,
+            bBlue: bBlue,
+            choice: cells[7].trim(),
+            isCorrect: cells[8].trim() === "true" || cells[8].trim() === "TRUE"
+        });
     }
     
     visualizeResults(); // Visualize the loaded data
